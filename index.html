@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>秋招作战工作台</title>
+<style>
+:root {
+  --bg: #F4F6F9;
+  --card: #FFFFFF;
+  --primary: #3B82F6;
+  --primary-light: #EFF6FF;
+  --primary-dark: #1D4ED8;
+  --text: #1E293B;
+  --text-secondary: #64748B;
+  --border: #E2E8F0;
+  --success: #10B981;
+  --warning: #F59E0B;
+  --danger: #EF4444;
+  --purple: #8B5CF6;
+  --radius: 10px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-lg: 0 4px 12px rgba(0,0,0,0.08);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; min-height: 100vh; }
+
+/* Header */
+.header { background: linear-gradient(135deg, #1E3A5F 0%, #2563EB 100%); color: white; padding: 20px 32px 0; position: sticky; top: 0; z-index: 100; }
+.header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.header h1 { font-size: 22px; font-weight: 700; letter-spacing: 0.5px; }
+.header h1 span { font-size: 13px; font-weight: 400; opacity: 0.8; margin-left: 10px; }
+.header-actions { display: flex; gap: 10px; }
+.btn { padding: 8px 18px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; }
+.btn-primary { background: white; color: var(--primary-dark); }
+.btn-primary:hover { background: #DBEAFE; }
+.btn-outline { background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.3); }
+.btn-outline:hover { background: rgba(255,255,255,0.25); }
+.btn-sm { padding: 5px 12px; font-size: 12px; }
+.btn-success { background: var(--success); color: white; }
+.btn-success:hover { background: #059669; }
+.btn-danger { background: white; color: var(--danger); border: 1px solid var(--danger); }
+.btn-danger:hover { background: #FEF2F2; }
+.btn-blue { background: var(--primary); color: white; }
+.btn-blue:hover { background: var(--primary-dark); }
+
+/* Tabs */
+.tabs { display: flex; gap: 0; }
+.tab { padding: 10px 22px; cursor: pointer; font-size: 14px; font-weight: 500; color: rgba(255,255,255,0.7); border-bottom: 2.5px solid transparent; transition: all 0.2s; user-select: none; }
+.tab:hover { color: white; }
+.tab.active { color: white; border-bottom-color: white; }
+
+/* Main */
+.main { max-width: 1280px; margin: 0 auto; padding: 24px 28px 60px; }
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* Stats */
+.stats-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-bottom: 24px; }
+.stat-card { background: var(--card); border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow); }
+.stat-card .label { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
+.stat-card .value { font-size: 28px; font-weight: 700; color: var(--text); }
+.stat-card .sub { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+.stat-card.highlight { background: linear-gradient(135deg, #2563EB, #3B82F6); color: white; }
+.stat-card.highlight .label, .stat-card.highlight .sub { color: rgba(255,255,255,0.8); }
+.stat-card.highlight .value { color: white; }
+
+/* Cards */
+.card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 20px; overflow: hidden; }
+.card-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+.card-header h3 { font-size: 15px; font-weight: 600; }
+.card-body { padding: 20px; }
+
+/* Table */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { background: #F8FAFC; color: var(--text-secondary); font-weight: 600; text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); white-space: nowrap; position: sticky; top: 0; }
+td { padding: 10px 14px; border-bottom: 1px solid #F1F5F9; vertical-align: middle; }
+tr:hover td { background: #FAFBFD; }
+td a { color: var(--primary); text-decoration: none; }
+td a:hover { text-decoration: underline; }
+
+/* Status Badge */
+.badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+.badge-pending { background: #F1F5F9; color: #64748B; }
+.badge-applied { background: #DBEAFE; color: #1D4ED8; }
+.badge-test { background: #FEF3C7; color: #92400E; }
+.badge-reject { background: #FEE2E2; color: #DC2626; }
+.badge-interview { background: #D1FAE5; color: #065F46; }
+.badge-offer { background: #10B981; color: white; }
+
+/* Form */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-group.full { grid-column: 1 / -1; }
+.form-group label { font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+.form-group input, .form-group select, .form-group textarea {
+  padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px;
+  font-family: inherit; color: var(--text); transition: border 0.2s; background: white;
+}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+.form-group textarea { resize: vertical; min-height: 70px; }
+
+/* Modal */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; display: none; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
+.modal-overlay.show { display: flex; }
+.modal { background: white; border-radius: 14px; width: 580px; max-width: 92vw; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.15); }
+.modal-header { padding: 18px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+.modal-header h3 { font-size: 16px; font-weight: 600; }
+.modal-close { width: 30px; height: 30px; border-radius: 8px; border: none; background: #F1F5F9; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; }
+.modal-close:hover { background: #E2E8F0; }
+.modal-body { padding: 20px 24px; }
+.modal-footer { padding: 14px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; }
+
+/* Search */
+.search-bar { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+.search-input { padding: 8px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; min-width: 220px; }
+.search-input:focus { outline: none; border-color: var(--primary); }
+.filter-select { padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; background: white; }
+
+/* Kanban */
+.kanban { display: flex; gap: 14px; overflow-x: auto; padding-bottom: 10px; min-height: 400px; }
+.kanban-col { min-width: 200px; flex: 1; background: #F8FAFC; border-radius: 10px; padding: 12px; }
+.kanban-col-header { font-size: 13px; font-weight: 600; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+.kanban-col-header .count { background: var(--border); color: var(--text-secondary); border-radius: 10px; padding: 1px 8px; font-size: 11px; }
+.kanban-card { background: white; border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); cursor: pointer; transition: box-shadow 0.2s; border-left: 3px solid transparent; }
+.kanban-card:hover { box-shadow: var(--shadow-lg); }
+.kanban-card .company { font-size: 13px; font-weight: 600; }
+.kanban-card .position { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+.kanban-card .note { font-size: 11px; color: var(--warning); margin-top: 6px; background: #FFFBEB; padding: 4px 8px; border-radius: 4px; }
+.kanban-card[data-status="offer"] { border-left-color: var(--success); }
+.kanban-card[data-status="一面中"], .kanban-card[data-status="二面中"], .kanban-card[data-status="三面中"] { border-left-color: var(--primary); }
+.kanban-card[data-status="简历挂"], .kanban-card[data-status="一面挂"], .kanban-card[data-status="二面挂"], .kanban-card[data-status="三面挂"] { border-left-color: var(--danger); }
+
+/* Charts */
+.chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.chart-box { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; }
+.chart-box h4 { font-size: 14px; font-weight: 600; margin-bottom: 16px; }
+.bar-chart { display: flex; flex-direction: column; gap: 10px; }
+.bar-row { display: flex; align-items: center; gap: 10px; }
+.bar-label { width: 80px; font-size: 12px; color: var(--text-secondary); text-align: right; flex-shrink: 0; }
+.bar-track { flex: 1; height: 24px; background: #F1F5F9; border-radius: 6px; overflow: hidden; position: relative; }
+.bar-fill { height: 100%; border-radius: 6px; transition: width 0.6s ease; display: flex; align-items: center; padding-left: 8px; font-size: 11px; color: white; font-weight: 600; }
+.bar-value { font-size: 12px; color: var(--text); width: 36px; text-align: right; flex-shrink: 0; }
+.donut-wrap { display: flex; align-items: center; justify-content: center; gap: 24px; }
+.donut-legend { display: flex; flex-direction: column; gap: 6px; }
+.donut-legend-item { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+.donut-legend-item .dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+
+/* Empty */
+.empty { text-align: center; padding: 48px 20px; color: var(--text-secondary); }
+.empty .icon { font-size: 40px; margin-bottom: 10px; }
+.empty p { font-size: 14px; }
+
+/* Today cards */
+.today-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+.today-card { background: white; border-radius: 10px; padding: 16px; box-shadow: var(--shadow); transition: all 0.2s; border: 1px solid var(--border); }
+.today-card:hover { box-shadow: var(--shadow-lg); border-color: var(--primary); }
+.today-card .tc-company { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+.today-card .tc-position { font-size: 13px; color: var(--primary); margin-bottom: 8px; }
+.today-card .tc-meta { font-size: 12px; color: var(--text-secondary); display: flex; gap: 14px; flex-wrap: wrap; }
+.today-card .tc-actions { margin-top: 12px; display: flex; gap: 8px; }
+.today-card .tc-tag { display: inline-block; padding: 2px 8px; background: var(--primary-light); color: var(--primary); border-radius: 4px; font-size: 11px; font-weight: 500; }
+.new-badge { background: #EF4444; color: white; font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 600; margin-left: 6px; }
+
+/* Responsive */
+@media (max-width: 900px) {
+  .stats-row { grid-template-columns: repeat(3, 1fr); }
+  .chart-grid { grid-template-columns: 1fr; }
+  .form-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+  .header { padding: 14px 16px 0; }
+  .main { padding: 16px 12px 60px; }
+  .tabs { overflow-x: auto; }
+  .tab { padding: 10px 14px; white-space: nowrap; font-size: 13px; }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+
+/* Status select colors */
+.status-select { appearance: none; -webkit-appearance: none; padding: 4px 24px 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; border: none; cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2364748B'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 8px center; }
+
+.toast { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); background: rgba(0,0,0,0.78); color: white; padding: 28px 44px; border-radius: 14px; font-size: 15px; font-weight: 600; z-index: 500; display: none; box-shadow: 0 8px 32px rgba(0,0,0,0.18); text-align: center; backdrop-filter: blur(4px); }
+.toast .check { font-size: 38px; margin-bottom: 8px; display: block; }
+.toast.show { display: block; animation: fadeScale 0.35s ease; }
+.toast.warn { background: rgba(220,38,38,0.92); }
+@keyframes fadeScale { from { opacity: 0; transform: translate(-50%,-50%) scale(0.85); } to { opacity: 1; transform: translate(-50%,-50%) scale(1); } }
+.btn-blue:disabled { opacity: 0.55; cursor: not-allowed; }
+.inline-status { padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 500; border: 1px solid var(--border); background: white; cursor: pointer; min-width: 80px; }
+.inline-status:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(59,130,246,0.15); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <h1>秋招作战工作台 <span>2027 Campus Recruitment</span></h1>
+    <div class="header-actions">
+      <button class="btn btn-primary" onclick="openAddModal()">+ 新增岗位</button>
+      <button class="btn btn-outline" onclick="exportData()">导出数据</button>
+      <button class="btn btn-outline" onclick="importDataClick()">导入数据</button>
+      <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+    </div>
+  </div>
+  <div class="tabs" id="tabs">
+    <div class="tab active" data-tab="review">数据复盘</div>
+    <div class="tab" data-tab="today">今日新增</div>
+    <div class="tab" data-tab="library">岗位总库</div>
+  </div>
+</div>
+
+<div class="main">
+  <!-- Today -->
+  <div class="panel" id="panel-today">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h3 style="font-size:16px;">24 小时内新增岗位</h3>
+      <button class="btn btn-blue btn-sm" onclick="openAddModal()">+ 手动新增</button>
+    </div>
+    <div class="today-grid" id="todayGrid"></div>
+  </div>
+
+  <!-- Library -->
+  <div class="panel" id="panel-library">
+    <div class="search-bar">
+      <input class="search-input" id="searchInput" placeholder="搜索公司 / 岗位 / 城市..." oninput="renderLibrary()">
+      <select class="filter-select" id="filterStatus" onchange="renderLibrary()">
+        <option value="">全部状态</option>
+      </select>
+      <select class="filter-select" id="filterSource" onchange="renderLibrary()">
+        <option value="">全部来源</option>
+      </select>
+      <select class="filter-select" id="filterCity" onchange="renderLibrary()">
+        <option value="">全部城市</option>
+      </select>
+      <span style="font-size:12px;color:var(--text-secondary);display:flex;align-items:center;" id="libCount"></span>
+    </div>
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>公司名称</th><th>岗位名称</th><th>工作城市</th><th>投递进度</th><th>官网链接</th><th>发布时间</th><th>投递日期</th><th>信息来源</th><th>操作</th>
+          </tr></thead>
+          <tbody id="libraryBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Review (merged dashboard + review) -->
+  <div class="panel active" id="panel-review">
+    <div class="stats-row" id="statsRow"></div>
+    <div class="chart-grid">
+      <div class="chart-box">
+        <h4>投递状态分布</h4>
+        <div class="donut-wrap" id="statusDonut"></div>
+      </div>
+      <div class="chart-box">
+        <h4>面试转化漏斗</h4>
+        <div id="funnelChart" style="padding:10px 0;"></div>
+      </div>
+      <div class="chart-box">
+        <h4>各公司投递 Top 10</h4>
+        <div class="bar-chart" id="companyBars"></div>
+      </div>
+      <div class="chart-box">
+        <h4>城市分布</h4>
+        <div class="bar-chart" id="cityBars"></div>
+      </div>
+      <div class="chart-box">
+        <h4>信息来源分布</h4>
+        <div class="bar-chart" id="sourceBars"></div>
+      </div>
+      <div class="chart-box">
+        <h4>每周投递趋势</h4>
+        <div id="weeklyTrend" style="padding:10px 0;"></div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:20px">
+      <div class="card-header"><h3>最近投递动态</h3></div>
+      <div class="card-body">
+        <div class="table-wrap">
+          <table><thead><tr><th>公司</th><th>岗位</th><th>状态</th><th>更新时间</th></tr></thead>
+          <tbody id="recentActivity"></tbody></table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Modal -->
+<div class="modal-overlay" id="jobModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalTitle">新增岗位</h3>
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group"><label>公司名称 *</label><input id="f_company" placeholder="如：字节跳动"></div>
+        <div class="form-group"><label>岗位名称 *</label><input id="f_position" placeholder="如：产品经理"></div>
+        <div class="form-group"><label>工作城市</label><input id="f_city" placeholder="如：北京"></div>
+        <div class="form-group"><label>岗位官网链接</label><input id="f_link" placeholder="https://..."></div>
+        <div class="form-group"><label>发布时间</label><input type="date" id="f_publishDate"></div>
+        <div class="form-group"><label>投递日期</label><input type="date" id="f_applyDate"></div>
+        <div class="form-group"><label>信息来源</label><input id="f_source" placeholder="如：牛客、官网、Boss直聘"></div>
+        <div class="form-group"><label>投递状态</label>
+          <select id="f_status">
+            <option value="未投递">未投递</option>
+            <option value="已投递">已投递</option>
+            <option value="待测评">待测评</option>
+            <option value="已测评">已测评</option>
+            <option value="简历挂">简历挂</option>
+            <option value="一面中">一面中</option>
+            <option value="二面中">二面中</option>
+            <option value="三面中">三面中</option>
+            <option value="一面挂">一面挂</option>
+            <option value="二面挂">二面挂</option>
+            <option value="三面挂">三面挂</option>
+            <option value="offer">offer</option>
+          </select>
+        </div>
+        <div class="form-group full"><label>面试备注 / 复盘</label><textarea id="f_note" placeholder="面试感受、考察重点、改进方向..."></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" id="deleteBtn" style="display:none;margin-right:auto;" onclick="deleteJob()">删除</button>
+      <button class="btn" style="background:#F1F5F9;" onclick="closeModal()">取消</button>
+      <button class="btn btn-blue" onclick="saveJob()">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span class="check" id="toastIcon"></span><span id="toastMsg"></span></div>
+
+<script>
+// === DATA ===
+const STATUSES = ['未投递','已投递','待测评','已测评','简历挂','一面中','二面中','三面中','一面挂','二面挂','三面挂','offer'];
+const STATUS_COLORS = {
+  '未投递':'#94A3B8','已投递':'#3B82F6','待测评':'#8B5CF6','已测评':'#F59E0B',
+  '简历挂':'#EF4444','一面中':'#10B981','二面中':'#059669','三面中':'#047857',
+  '一面挂':'#F87171','二面挂':'#EF4444','三面挂':'#DC2626','offer':'#10B981'
+};
+
+let jobs = [];
+let editingId = null;
+
+function loadJobs() {
+  try { jobs = JSON.parse(localStorage.getItem('jobs_data') || '[]'); } catch(e) { jobs = []; }
+}
+function saveJobs() { localStorage.setItem('jobs_data', JSON.stringify(jobs)); }
+function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
+
+// === TABS ===
+document.getElementById('tabs').addEventListener('click', e => {
+  if (!e.target.classList.contains('tab')) return;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  e.target.classList.add('active');
+  document.getElementById('panel-' + e.target.dataset.tab).classList.add('active');
+  renderAll();
+});
+
+// === TOAST ===
+let _toastTimer = null;
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  const icon = document.getElementById('toastIcon');
+  const txt = document.getElementById('toastMsg');
+  clearTimeout(_toastTimer);
+  t.classList.remove('show','warn');
+  if (type === 'warn') { t.classList.add('warn'); icon.textContent = '!'; }
+  else { icon.textContent = '\u2713'; }
+  txt.textContent = msg;
+  void t.offsetWidth;
+  t.classList.add('show');
+  _toastTimer = setTimeout(() => t.classList.remove('show'), type === 'warn' ? 2200 : 1500);
+}
+let _saving = false;
+
+// === MODAL ===
+function openAddModal() {
+  editingId = null;
+  document.getElementById('modalTitle').textContent = '新增岗位';
+  document.getElementById('deleteBtn').style.display = 'none';
+  ['f_company','f_position','f_city','f_link','f_publishDate','f_applyDate','f_source','f_note'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f_status').value = '未投递';
+  document.getElementById('f_publishDate').value = new Date().toISOString().slice(0,10);
+  document.getElementById('jobModal').classList.add('show');
+}
+function openEditModal(id) {
+  const job = jobs.find(j => j.id === id);
+  if (!job) return;
+  editingId = id;
+  document.getElementById('modalTitle').textContent = '编辑岗位';
+  document.getElementById('deleteBtn').style.display = 'block';
+  document.getElementById('f_company').value = job.company || '';
+  document.getElementById('f_position').value = job.position || '';
+  document.getElementById('f_city').value = job.city || '';
+  document.getElementById('f_link').value = job.link || '';
+  document.getElementById('f_publishDate').value = job.publishDate || '';
+  document.getElementById('f_applyDate').value = job.applyDate || '';
+  document.getElementById('f_source').value = job.source || '';
+  document.getElementById('f_status').value = job.status || '未投递';
+  document.getElementById('f_note').value = job.note || '';
+  document.getElementById('jobModal').classList.add('show');
+}
+function closeModal() { document.getElementById('jobModal').classList.remove('show'); editingId = null; }
+
+function saveJob() {
+  if (_saving) return;
+  const company = document.getElementById('f_company').value.trim();
+  const position = document.getElementById('f_position').value.trim();
+  if (!company || !position) { showToast('请填写公司名称和岗位名称', 'warn'); return; }
+  const data = {
+    company, position,
+    city: document.getElementById('f_city').value.trim(),
+    link: document.getElementById('f_link').value.trim(),
+    publishDate: document.getElementById('f_publishDate').value,
+    applyDate: document.getElementById('f_applyDate').value,
+    source: document.getElementById('f_source').value.trim(),
+    status: document.getElementById('f_status').value,
+    note: document.getElementById('f_note').value.trim(),
+  };
+  if (editingId) {
+    const idx = jobs.findIndex(j => j.id === editingId);
+    if (idx >= 0) { jobs[idx] = { ...jobs[idx], ...data, updatedAt: new Date().toISOString() }; }
+  } else {
+    const dup = jobs.find(j => j.company === data.company && j.position === data.position);
+    if (dup) { showToast('已存在相同公司+岗位，请勿重复添加', 'warn'); return; }
+    jobs.unshift({ id: genId(), ...data, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
+  }
+  _saving = true;
+  const btn = document.querySelector('.modal-footer .btn-blue');
+  if (btn) { btn.disabled = true; btn.textContent = '保存中...'; }
+  saveJobs();
+  setTimeout(() => {
+    closeModal(); renderAll();
+    showToast(editingId ? '已更新' : '已添加 ' + data.company + ' · ' + data.position);
+    _saving = false;
+    if (btn) { btn.disabled = false; btn.textContent = '保存'; }
+  }, 300);
+}
+
+function deleteJob() {
+  if (!editingId) return;
+  if (!confirm('确定删除该岗位？')) return;
+  jobs = jobs.filter(j => j.id !== editingId);
+  saveJobs(); closeModal(); renderAll();
+  showToast('已删除');
+}
+
+// === RENDER ===
+function badgeClass(status) {
+  if (status === 'offer') return 'badge-offer';
+  if (['一面中','二面中','三面中'].includes(status)) return 'badge-interview';
+  if (['简历挂','一面挂','二面挂','三面挂'].includes(status)) return 'badge-reject';
+  if (status === '已测评') return 'badge-test';
+  if (status === '已投递') return 'badge-applied';
+  return 'badge-pending';
+}
+
+function isToday(dateStr) {
+  if (!dateStr) return false;
+  const d = new Date(dateStr);
+  const now = new Date();
+  return (now - d) < 24*60*60*1000;
+}
+
+function renderToday() {
+  const today = jobs.filter(j => isToday(j.publishDate));
+  const grid = document.getElementById('todayGrid');
+  if (today.length === 0) {
+    grid.innerHTML = '<div class="empty" style="grid-column:1/-1;"><div class="icon">📋</div><p>今日暂无新增岗位，点击右上角手动添加</p></div>';
+    return;
+  }
+  grid.innerHTML = today.map(j => `
+    <div class="today-card" onclick="openEditModal('${j.id}')">
+      <div style="display:flex;justify-content:space-between;align-items:start;">
+        <div class="tc-company">${j.company}<span class="new-badge">NEW</span></div>
+        <span class="badge ${badgeClass(j.status)}">${j.status}</span>
+      </div>
+      <div class="tc-position">${j.position}</div>
+      <div class="tc-meta">
+        ${j.city ? `<span>📍 ${j.city}</span>` : ''}
+        ${j.source ? `<span>📌 ${j.source}</span>` : ''}
+        ${j.publishDate ? `<span>📅 ${j.publishDate}</span>` : ''}
+      </div>
+      ${j.link ? `<div class="tc-actions"><a href="${j.link}" target="_blank" class="btn btn-sm btn-blue" onclick="event.stopPropagation()">查看官网 →</a></div>` : ''}
+    </div>
+  `).join('');
+}
+
+function renderLibrary() {
+  const q = (document.getElementById('searchInput').value || '').toLowerCase();
+  const statusFilter = document.getElementById('filterStatus').value;
+  const srcFilter = document.getElementById('filterSource').value;
+  const cityFilter = document.getElementById('filterCity').value;
+
+  // Update filter options
+  const sources = [...new Set(jobs.map(j => j.source).filter(Boolean))];
+  const cities = [...new Set(jobs.map(j => j.city).filter(Boolean))];
+  const srcSel = document.getElementById('filterSource');
+  const citySel = document.getElementById('filterCity');
+  const statusSel = document.getElementById('filterStatus');
+  const curSrc = srcSel.value, curCity = citySel.value, curStatus = statusSel.value;
+  srcSel.innerHTML = '<option value="">全部来源</option>' + sources.map(s => `<option ${s===curSrc?'selected':''}>${s}</option>`).join('');
+  citySel.innerHTML = '<option value="">全部城市</option>' + cities.map(c => `<option ${c===curCity?'selected':''}>${c}</option>`).join('');
+  statusSel.innerHTML = '<option value="">全部状态</option>' + STATUSES.map(s => `<option ${s===curStatus?'selected':''}>${s}</option>`).join('');
+
+  const filtered = jobs.filter(j => {
+    if (q && !(`${j.company} ${j.position} ${j.city}`.toLowerCase().includes(q))) return false;
+    if (statusFilter && j.status !== statusFilter) return false;
+    if (srcFilter && j.source !== srcFilter) return false;
+    if (cityFilter && j.city !== cityFilter) return false;
+    return true;
+  });
+
+  document.getElementById('libCount').textContent = `共 ${filtered.length} 条`;
+  document.getElementById('libraryBody').innerHTML = filtered.length === 0
+    ? '<tr><td colspan="9" style="text-align:center;color:var(--text-secondary);padding:30px;">暂无岗位数据，点击右上角「+ 新增岗位」开始添加</td></tr>'
+    : filtered.map(j => `<tr>
+        <td><strong>${j.company}</strong></td>
+        <td>${j.position}</td>
+        <td>${j.city || '-'}</td>
+        <td><select class="inline-status" onchange="changeStatus('${j.id}',this.value)" style="color:${STATUS_COLORS[j.status]||'#333'};font-weight:600;">${STATUSES.map(s => `<option value="${s}" ${s===j.status?'selected':''}>${s}</option>`).join('')}</select></td>
+        <td>${j.link ? `<a href="${j.link}" target="_blank">查看 →</a>` : '-'}</td>
+        <td>${j.publishDate || '-'}</td>
+        <td>${j.applyDate || '-'}</td>
+        <td>${j.source || '-'}</td>
+        <td>
+          <button class="btn btn-sm" style="background:#F1F5F9;" onclick="openEditModal('${j.id}')">编辑</button>
+        </td>
+      </tr>`).join('');
+}
+
+function changeStatus(id, status) {
+  const job = jobs.find(j => j.id === id);
+  if (!job) return;
+  job.status = status;
+  job.updatedAt = new Date().toISOString();
+  saveJobs(); renderAll();
+  showToast(`${job.company} → ${status}`);
+}
+
+function renderReview() {
+  const total = jobs.length;
+  const applied = jobs.filter(j => j.status !== '未投递').length;
+  const interviewing = jobs.filter(j => ['一面中','二面中','三面中'].includes(j.status)).length;
+  const offers = jobs.filter(j => j.status === 'offer').length;
+  const rejected = jobs.filter(j => ['简历挂','一面挂','二面挂','三面挂'].includes(j.status)).length;
+  const tested = jobs.filter(j => ['已测评','一面中','二面中','三面中','一面挂','二面挂','三面挂','offer'].includes(j.status)).length;
+  const interviewed = jobs.filter(j => ['一面中','二面中','三面中','一面挂','二面挂','三面挂','offer'].includes(j.status)).length;
+  const rate = total > 0 ? ((applied / total) * 100).toFixed(1) : '0.0';
+  const testRate = applied > 0 ? ((tested/applied)*100).toFixed(1) : '0';
+  const interviewRate = tested > 0 ? ((interviewed/tested)*100).toFixed(1) : '0';
+  const offerRate = interviewed > 0 ? ((offers/interviewed)*100).toFixed(1) : '0';
+
+  // Stats row (merged from old dashboard)
+  document.getElementById('statsRow').innerHTML = `
+    <div class="stat-card highlight"><div class="label">岗位总数</div><div class="value">${total}</div><div class="sub">投递率 ${rate}%</div></div>
+    <div class="stat-card"><div class="label">已投递</div><div class="value">${applied}</div><div class="sub">含测评+面试</div></div>
+    <div class="stat-card"><div class="label">面试中</div><div class="value">${interviewing}</div><div class="sub">一二三面</div></div>
+    <div class="stat-card"><div class="label">Offer</div><div class="value" style="color:var(--success)">${offers}</div><div class="sub">转化率 ${offerRate}%</div></div>
+    <div class="stat-card"><div class="label">已挂</div><div class="value" style="color:var(--danger)">${rejected}</div><div class="sub">继续加油</div></div>
+  `;
+
+  // Status donut
+  const statusCounts = {};
+  STATUSES.forEach(s => statusCounts[s] = 0);
+  jobs.forEach(j => { if (statusCounts[j.status] !== undefined) statusCounts[j.status]++; });
+  const active = Object.entries(statusCounts).filter(([,v]) => v > 0);
+  const donutTotal = jobs.length || 1;
+  if (active.length === 0) {
+    document.getElementById('statusDonut').innerHTML = '<div class="empty"><p>暂无数据，添加岗位后自动统计</p></div>';
+  } else {
+    const size = 140, r = 55, cx = size/2, cy = size/2, circumference = 2 * Math.PI * r;
+    let offset = 0; let paths = '';
+    active.forEach(([status, count]) => {
+      const pct = count / donutTotal;
+      const dash = pct * circumference;
+      paths += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${STATUS_COLORS[status]}" stroke-width="22" stroke-dasharray="${dash} ${circumference - dash}" stroke-dashoffset="${-offset}" transform="rotate(-90 ${cx} ${cy})"/>`;
+      offset += dash;
+    });
+    const svg = `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${paths}<text x="${cx}" y="${cy-4}" text-anchor="middle" font-size="22" font-weight="700" fill="var(--text)">${jobs.length}</text><text x="${cx}" y="${cy+14}" text-anchor="middle" font-size="11" fill="var(--text-secondary)">总岗位</text></svg>`;
+    const legend = active.map(([s,c]) => `<div class="donut-legend-item"><div class="dot" style="background:${STATUS_COLORS[s]}"></div>${s} ${c}</div>`).join('');
+    document.getElementById('statusDonut').innerHTML = svg + `<div class="donut-legend">${legend}</div>`;
+  }
+
+  // Funnel
+  const funnelData = [
+    { label: '投递', value: applied, color: '#3B82F6' },
+    { label: '测评', value: tested, color: '#F59E0B' },
+    { label: '面试', value: interviewed, color: '#10B981' },
+    { label: 'Offer', value: offers, color: '#059669' },
+  ];
+  const maxFunnel = Math.max(applied, 1);
+  document.getElementById('funnelChart').innerHTML = funnelData.map(d => `
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+      <div style="width:50px;text-align:right;font-size:13px;font-weight:600;">${d.label}</div>
+      <div style="flex:1;height:36px;background:#F1F5F9;border-radius:8px;overflow:hidden;position:relative;">
+        <div style="height:100%;width:${(d.value/maxFunnel*100)}%;background:${d.color};border-radius:8px;transition:width 0.6s;display:flex;align-items:center;justify-content:center;color:white;font-size:13px;font-weight:700;min-width:${d.value>0?'40px':'0'}">${d.value}</div>
+      </div>
+    </div>
+  `).join('');
+
+  // Company bars
+  const companyCounts = {};
+  jobs.forEach(j => { companyCounts[j.company] = (companyCounts[j.company] || 0) + 1; });
+  const top = Object.entries(companyCounts).sort((a,b) => b[1]-a[1]).slice(0,10);
+  const maxVal = top.length > 0 ? top[0][1] : 1;
+  document.getElementById('companyBars').innerHTML = top.length === 0 ? '<div class="empty"><p>暂无数据</p></div>'
+    : top.map(([name, count]) => `<div class="bar-row"><div class="bar-label">${name.length > 6 ? name.slice(0,6)+'...' : name}</div><div class="bar-track"><div class="bar-fill" style="width:${(count/maxVal*100)}%;background:var(--primary);">${count}</div></div></div>`).join('');
+
+  // City bars
+  const cityCounts = {};
+  jobs.forEach(j => { if (j.city) cityCounts[j.city] = (cityCounts[j.city]||0)+1; });
+  const topCities = Object.entries(cityCounts).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const maxCity = topCities.length > 0 ? topCities[0][1] : 1;
+  document.getElementById('cityBars').innerHTML = topCities.length === 0 ? '<div class="empty"><p>暂无数据</p></div>'
+    : topCities.map(([name,count]) => `<div class="bar-row"><div class="bar-label">${name}</div><div class="bar-track"><div class="bar-fill" style="width:${(count/maxCity*100)}%;background:#8B5CF6;">${count}</div></div></div>`).join('');
+
+  // Source bars
+  const srcCounts = {};
+  jobs.forEach(j => { if (j.source) srcCounts[j.source] = (srcCounts[j.source]||0)+1; });
+  const topSrc = Object.entries(srcCounts).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const maxSrc = topSrc.length > 0 ? topSrc[0][1] : 1;
+  document.getElementById('sourceBars').innerHTML = topSrc.length === 0 ? '<div class="empty"><p>暂无数据</p></div>'
+    : topSrc.map(([name,count]) => `<div class="bar-row"><div class="bar-label">${name.length>6?name.slice(0,6)+'...':name}</div><div class="bar-track"><div class="bar-fill" style="width:${(count/maxSrc*100)}%;background:#F59E0B;">${count}</div></div></div>`).join('');
+
+  // Weekly trend
+  const weekMap = {};
+  jobs.forEach(j => {
+    if (!j.applyDate) return;
+    const d = new Date(j.applyDate);
+    const weekStart = new Date(d); weekStart.setDate(d.getDate() - d.getDay());
+    const key = weekStart.toISOString().slice(0,10);
+    weekMap[key] = (weekMap[key]||0) + 1;
+  });
+  const weeks = Object.entries(weekMap).sort((a,b)=>a[0].localeCompare(b[0])).slice(-8);
+  const maxWeek = weeks.length > 0 ? Math.max(...weeks.map(w=>w[1])) : 1;
+  document.getElementById('weeklyTrend').innerHTML = weeks.length === 0 ? '<div class="empty"><p>填写投递日期后显示趋势</p></div>'
+    : `<div style="display:flex;align-items:flex-end;gap:8px;height:160px;padding:0 10px;">${weeks.map(([w,c])=>`
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+          <div style="font-size:11px;font-weight:600;">${c}</div>
+          <div style="width:100%;height:${(c/maxWeek*120)}px;background:linear-gradient(180deg,#3B82F6,#60A5FA);border-radius:6px 6px 0 0;min-height:4px;"></div>
+          <div style="font-size:10px;color:var(--text-secondary);">${w.slice(5)}</div>
+        </div>`).join('')}</div>`;
+
+  // Recent activity
+  const recent = [...jobs].sort((a,b) => (b.updatedAt||'').localeCompare(a.updatedAt||'')).slice(0,8);
+  document.getElementById('recentActivity').innerHTML = recent.length === 0
+    ? '<tr><td colspan="4" style="text-align:center;color:var(--text-secondary);padding:30px;">暂无投递动态</td></tr>'
+    : recent.map(j => `<tr><td><strong>${j.company}</strong></td><td>${j.position}</td><td><span class="badge ${badgeClass(j.status)}">${j.status}</span></td><td style="color:var(--text-secondary);font-size:12px;">${j.updatedAt ? new Date(j.updatedAt).toLocaleDateString('zh-CN') : '-'}</td></tr>`).join('');
+}
+
+function renderAll() {
+  renderToday();
+  renderLibrary();
+  renderReview();
+}
+
+// === EXPORT / IMPORT ===
+function exportData() {
+  const blob = new Blob([JSON.stringify(jobs, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `秋招数据_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  showToast('数据已导出');
+}
+function importDataClick() { document.getElementById('importFile').click(); }
+function importData(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if (Array.isArray(data)) {
+        if (confirm(`导入 ${data.length} 条数据？（将与现有数据合并）`)) {
+          jobs = [...data, ...jobs];
+          saveJobs(); renderAll();
+          showToast(`已导入 ${data.length} 条`);
+        }
+      }
+    } catch(err) { showToast('文件格式错误'); }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+// === INIT ===
+loadJobs();
+renderAll();
+</script>
+</body>
+</html>

@@ -405,7 +405,7 @@ td a:hover { text-decoration: underline; }
             <option value="fail">未通过</option>
           </select>
         </div>
-        <div class="form-group"><label>面试时间</label><input type="datetime-local" id="iv_datetime" style="height:40px;"></div>
+        <div class="form-group"><label>面试时间</label><input type="date" id="iv_datetime" style="height:40px;"></div>
         <div class="form-group"><label>面试感受</label><textarea id="iv_summary" placeholder="面试氛围、自己发挥、改进方向..." style="height:40px;min-height:40px;resize:vertical;"></textarea></div>
       </div>
       <div style="margin-top:16px;background:linear-gradient(135deg,#EFF6FF,#F5F3FF);border:1px solid #DBEAFE;border-radius:10px;padding:14px;">
@@ -879,7 +879,7 @@ function openEditInterview(id) {
   document.getElementById('iv_position').value = iv.position;
   document.getElementById('iv_round').value = iv.round;
   document.getElementById('iv_result').value = iv.result;
-  document.getElementById('iv_datetime').value = iv.datetime;
+  document.getElementById('iv_datetime').value = (iv.datetime || '').slice(0, 10);
   document.getElementById('iv_summary').value = iv.summary || '';
   document.getElementById('ivQuestions').innerHTML = '';
   ivQuestionCount = 0;
@@ -1054,7 +1054,7 @@ function renderCalendar(targetId, maxItems) {
   }
   el.innerHTML = upcoming.map(iv => {
     const dt = new Date(iv.datetime);
-    const dateStr = `${dt.getMonth()+1}月${dt.getDate()}日 ${dt.getHours().toString().padStart(2,'0')}:${dt.getMinutes().toString().padStart(2,'0')}`;
+    const dateStr = `${dt.getMonth()+1}月${dt.getDate()}日`;
     const cls = getEventClass(iv.datetime);
     return `<div class="iv-calendar-event ${cls}">
       <div class="ev-date">${dateStr} <span class="ev-countdown">${formatCountdown(iv.datetime)}</span></div>
@@ -1152,7 +1152,7 @@ function renderInterviews() {
       if (a.datetime && b.datetime) return new Date(a.datetime) - new Date(b.datetime);
       return 0;
     }).map(iv => {
-      const dateStr = iv.datetime ? new Date(iv.datetime).toLocaleString('zh-CN', { month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit' }) : '';
+      const dateStr = iv.datetime ? new Date(iv.datetime).toLocaleDateString('zh-CN', { month:'numeric', day:'numeric' }) : '';
       const questions = (iv.questions || []).map((q, qi) =>
         `<div class="iv-question">
           <div class="q-head" onclick="toggleQuestionDetail(this.querySelector('.q-toggle'))">

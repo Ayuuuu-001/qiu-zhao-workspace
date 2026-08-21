@@ -405,7 +405,6 @@ td a:hover { text-decoration: underline; }
           </select>
         </div>
         <div class="form-group"><label>面试时间</label><input type="datetime-local" id="iv_datetime"></div>
-        <div class="form-group"><label>面试官</label><input id="iv_interviewer" placeholder="如：王总、HR 小姐姐"></div>
         <div class="form-group full"><label>面试感受 / 整体复盘</label><textarea id="iv_summary" placeholder="面试氛围、自己发挥、改进方向..."></textarea></div>
       </div>
       <div style="margin-top:16px;background:linear-gradient(135deg,#EFF6FF,#F5F3FF);border:1px solid #DBEAFE;border-radius:10px;padding:14px;">
@@ -819,7 +818,6 @@ function openInterviewModal(jobId) {
   document.getElementById('iv_round').value = '一面';
   document.getElementById('iv_result').value = 'pending';
   document.getElementById('iv_datetime').value = '';
-  document.getElementById('iv_interviewer').value = '';
   document.getElementById('iv_summary').value = '';
   document.getElementById('ivQuestions').innerHTML = '';
   document.getElementById('ivDeleteBtn').style.display = 'none';
@@ -881,7 +879,6 @@ function openEditInterview(id) {
   document.getElementById('iv_round').value = iv.round;
   document.getElementById('iv_result').value = iv.result;
   document.getElementById('iv_datetime').value = iv.datetime;
-  document.getElementById('iv_interviewer').value = iv.interviewer || '';
   document.getElementById('iv_summary').value = iv.summary || '';
   document.getElementById('ivQuestions').innerHTML = '';
   ivQuestionCount = 0;
@@ -980,7 +977,6 @@ function saveInterview() {
     round: document.getElementById('iv_round').value,
     result: document.getElementById('iv_result').value,
     datetime: document.getElementById('iv_datetime').value,
-    interviewer: document.getElementById('iv_interviewer').value.trim(),
     summary: document.getElementById('iv_summary').value.trim(),
     questions,
     analysis: ivAnalysis || null,
@@ -1062,7 +1058,7 @@ function renderCalendar(targetId, maxItems) {
     return `<div class="iv-calendar-event ${cls}">
       <div class="ev-date">${dateStr} <span class="ev-countdown">${formatCountdown(iv.datetime)}</span></div>
       <div class="ev-company">${iv.company} · ${iv.position}</div>
-      <div class="ev-detail">${iv.round}${iv.interviewer ? ' · ' + iv.interviewer : ''}</div>
+      <div class="ev-detail">${iv.round}</div>
     </div>`;
   }).join('');
 }
@@ -1182,7 +1178,6 @@ function renderInterviews() {
         </div>
         <div class="iv-card-body" id="ivBody_${iv.id}">
           <div class="iv-meta">
-            ${iv.interviewer ? `<span>面试官：${iv.interviewer}</span>` : ''}
             <span>问题数：${(iv.questions || []).length}</span>
           </div>
           ${questions}

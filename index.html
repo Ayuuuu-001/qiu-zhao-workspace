@@ -359,7 +359,7 @@ td a:hover { text-decoration: underline; }
   <div class="panel" id="panel-interview">
     <div class="iv-header">
       <h3 id="ivHeaderTitle">面试复盘</h3>
-      <button class="btn btn-blue" onclick="openInterviewModal()">+ 新增面试</button>
+      <button class="btn btn-blue" onclick="openInterviewModal()">+ 记录面试</button>
     </div>
     <div id="ivUpcoming"></div>
     <div class="iv-stats" id="ivStats"></div>
@@ -367,7 +367,7 @@ td a:hover { text-decoration: underline; }
       <div class="card-header"><h3>高频面试问题</h3></div>
       <div class="card-body" id="ivFreqQuestions"></div>
     </div>
-    <div id="ivList"></div>
+    <div id="ivJobList"></div>
   </div>
 </div>
 
@@ -380,9 +380,13 @@ td a:hover { text-decoration: underline; }
     </div>
     <div class="modal-body">
       <div class="form-grid">
-        <div class="form-group"><label>公司名称 *</label><input id="iv_company" placeholder="如：字节跳动" list="ivCompanyList"></div>
-        <datalist id="ivCompanyList"></datalist>
-        <div class="form-group"><label>岗位名称 *</label><input id="iv_position" placeholder="如：产品经理"></div>
+        <div class="form-group full"><label>选择岗位 *</label>
+          <select id="iv_jobSelect" onchange="onIvJobSelect()" style="padding:10px 12px;">
+            <option value="">-- 选择进入面试阶段的岗位 --</option>
+          </select>
+        </div>
+        <div class="form-group"><label>公司名称</label><input id="iv_company" readonly style="background:#F8FAFC;"></div>
+        <div class="form-group"><label>岗位名称</label><input id="iv_position" readonly style="background:#F8FAFC;"></div>
         <div class="form-group"><label>面试轮次 *</label>
           <select id="iv_round">
             <option value="一面">一面</option>
@@ -476,7 +480,12 @@ let jobs = [];
 let editingId = null;
 
 function loadJobs() {
-  try { jobs = JSON.parse(localStorage.getItem('jobs_data') || '[]'); } catch(e) { jobs = []; }
+  try {
+    jobs = JSON.parse(localStorage.getItem('jobs_data') || '[]');
+    let dirty = false;
+    jobs.forEach(j => { if (!j.id) { j.id = genId(); dirty = true; } });
+    if (dirty) saveJobs();
+  } catch(e) { jobs = []; }
 }
 function saveJobs() { localStorage.setItem('jobs_data', JSON.stringify(jobs)); }
 function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
@@ -793,9 +802,9 @@ function loadInterviews() {
 }
 function saveInterviews() { localStorage.setItem('interviews_data', JSON.stringify(interviews)); }
 
-function openInterviewModal() {
+function openInterviewModal(jobId) {
   ivEditingId = null;
-  document.getElementById('ivModalTitle').textContent = '新增面试';
+  document.getElementById('ivModalTitle').textContent = '记录面试';
   document.getElementById('iv_company').value = '';
   document.getElementById('iv_position').value = '';
   document.getElementById('iv_round').value = '一面';
@@ -806,10 +815,34 @@ function openInterviewModal() {
   document.getElementById('ivQuestions').innerHTML = '';
   document.getElementById('ivDeleteBtn').style.display = 'none';
   ivQuestionCount = 0;
-  // Populate company datalist
-  const companies = [...new Set(jobs.map(j => j.company))];
-  document.getElementById('ivCompanyList').innerHTML = companies.map(c => `<option value="${c}">`).join('');
+  // Populate job selector with interview-stage jobs
+  const ivStatuses = ['一面中','二面中','三面中','一面挂','二面挂','三面挂','offer'];
+  const ivJobs = jobs.filter(j => ivStatuses.includes(j.status));
+  const sel = document.getElementById('iv_jobSelect');
+  sel.innerHTML = '<option value="">-- 选择进入面试阶段的岗位 --</option>' +
+    ivJobs.map(j => `<option value="${j.id}">${j.company} · ${j.position}（${j.status}）</option>`).join('');
+  if (jobId) {
+    sel.value = jobId;
+    onIvJobSelect();
+  }
   document.getElementById('interviewModal').classList.add('show');
+}
+
+function onIvJobSelect() {
+  const jobId = document.getElementById('iv_jobSelect').value;
+  if (!jobId) {
+    document.getElementById('iv_company').value = '';
+    document.getElementById('iv_position').value = '';
+    return;
+  }
+  const job = jobs.find(j => j.id === jobId);
+  if (!job) return;
+  document.getElementById('iv_company').value = job.company;
+  document.getElementById('iv_position').value = job.position;
+  // Auto-detect round from status
+  const statusRoundMap = { '一面中':'一面', '二面中':'二面', '三面中':'三面', '一面挂':'一面', '二面挂':'二面', '三面挂':'三面', 'offer':'HR面' };
+  const detected = statusRoundMap[job.status] || '一面';
+  document.getElementById('iv_round').value = detected;
 }
 
 function openEditInterview(id) {
@@ -817,6 +850,20 @@ function openEditInterview(id) {
   if (!iv) return;
   ivEditingId = id;
   document.getElementById('ivModalTitle').textContent = '编辑面试';
+  // Populate job selector
+  const ivStatuses = ['一面中','二面中','三面中','一面挂','二面挂','三面挂','offer'];
+  const ivJobs = jobs.filter(j => ivStatuses.includes(j.status));
+  const sel = document.getElementById('iv_jobSelect');
+  sel.innerHTML = '<option value="">-- 选择进入面试阶段的岗位 --</option>' +
+    ivJobs.map(j => `<option value="${j.id}">${j.company} · ${j.position}（${j.status}）</option>`).join('');
+  // Try to find matching job
+  if (iv.jobId) {
+    sel.value = iv.jobId;
+  } else {
+    // Fallback: match by company+position
+    const match = jobs.find(j => j.company === iv.company && j.position === iv.position);
+    if (match) sel.value = match.id;
+  }
   document.getElementById('iv_company').value = iv.company;
   document.getElementById('iv_position').value = iv.position;
   document.getElementById('iv_round').value = iv.round;
@@ -826,10 +873,6 @@ function openEditInterview(id) {
   document.getElementById('iv_summary').value = iv.summary || '';
   document.getElementById('ivQuestions').innerHTML = '';
   ivQuestionCount = 0;
-  // Populate company datalist
-  const companies = [...new Set(jobs.map(j => j.company))];
-  document.getElementById('ivCompanyList').innerHTML = companies.map(c => `<option value="${c}">`).join('');
-  // Load existing questions
   (iv.questions || []).forEach(q => addQuestionForm(q.question, q.myAnswer, q.suggestion));
   document.getElementById('ivDeleteBtn').style.display = 'block';
   document.getElementById('interviewModal').classList.add('show');
@@ -860,7 +903,8 @@ function addQuestionForm(q, a, s) {
 function saveInterview() {
   const company = document.getElementById('iv_company').value.trim();
   const position = document.getElementById('iv_position').value.trim();
-  if (!company || !position) { showToast('请填写公司名称和岗位名称', 'warn'); return; }
+  if (!company || !position) { showToast('请先选择一个进入面试阶段的岗位', 'warn'); return; }
+  const jobId = document.getElementById('iv_jobSelect').value || '';
   const questions = [];
   document.querySelectorAll('#ivQuestions .q-form-group').forEach(qf => {
     const q = qf.querySelector('[data-field="question"]').value.trim();
@@ -869,7 +913,7 @@ function saveInterview() {
     if (q) questions.push({ question: q, myAnswer: a, suggestion: s });
   });
   const data = {
-    company, position,
+    jobId, company, position,
     round: document.getElementById('iv_round').value,
     result: document.getElementById('iv_result').value,
     datetime: document.getElementById('iv_datetime').value,
@@ -998,57 +1042,74 @@ function renderFreqQuestions() {
 }
 
 function renderInterviews() {
-  const el = document.getElementById('ivList');
+  const el = document.getElementById('ivJobList');
   if (!el) return;
-  document.getElementById('ivHeaderTitle').textContent = `面试复盘（${interviews.length} 场）`;
-  const sorted = [...interviews].sort((a, b) => {
-    if (a.datetime && b.datetime) return new Date(b.datetime) - new Date(a.datetime);
-    if (a.datetime) return -1;
-    if (b.datetime) return 1;
-    return new Date(b.createdAt) - new Date(a.createdAt);
-  });
-  if (sorted.length === 0) {
-    el.innerHTML = '<div class="card"><div class="card-body" style="text-align:center;color:var(--text-secondary);padding:40px;">暂无面试记录，点击「+ 新增面试」开始记录你的每一场面试</div></div>';
+  const ivStatuses = ['一面中','二面中','三面中','一面挂','二面挂','三面挂','offer'];
+  const ivJobs = jobs.filter(j => ivStatuses.includes(j.status));
+  const totalIv = interviews.length;
+  document.getElementById('ivHeaderTitle').textContent = `面试复盘（${ivJobs.length} 个岗位 · ${totalIv} 场面试）`;
+  if (ivJobs.length === 0) {
+    el.innerHTML = '<div class="card"><div class="card-body" style="text-align:center;color:var(--text-secondary);padding:40px;">暂无进入面试阶段的岗位<br><span style="font-size:12px;">在岗位总库中将投递状态改为「一面中」等面试状态，岗位会自动出现在这里</span></div></div>';
     return;
   }
   const resultLabels = { pending: '待定', pass: '通过', fail: '未通过' };
   const resultColors = { pending: '#94A3B8', pass: '#10B981', fail: '#EF4444' };
   const resultBg = { pending: '#F1F5F9', pass: '#D1FAE5', fail: '#FEE2E2' };
-  el.innerHTML = sorted.map(iv => {
-    const dateStr = iv.datetime ? new Date(iv.datetime).toLocaleString('zh-CN', { month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit' }) : '';
-    const questions = (iv.questions || []).map((q, qi) =>
-      `<div class="iv-question">
-        <div class="q-head" onclick="toggleQuestionDetail(this.querySelector('.q-toggle'))">
-          <span class="q-num">Q${qi+1}</span>
-          <span class="q-text">${q.question || '(无问题)'}</span>
-          <span class="q-toggle">展开</span>
+  // Sort: active interviews first, then rejected, then offer
+  const statusOrder = { '一面中':0, '二面中':1, '三面中':2, '一面挂':3, '二面挂':4, '三面挂':5, 'offer':6 };
+  const sorted = [...ivJobs].sort((a,b) => (statusOrder[a.status]||99) - (statusOrder[b.status]||99));
+  el.innerHTML = sorted.map(job => {
+    const jobIvs = interviews.filter(i => (i.jobId === job.id) || (!i.jobId && i.company === job.company && i.position === job.position));
+    const ivCards = jobIvs.sort((a,b) => {
+      if (a.datetime && b.datetime) return new Date(a.datetime) - new Date(b.datetime);
+      return 0;
+    }).map(iv => {
+      const dateStr = iv.datetime ? new Date(iv.datetime).toLocaleString('zh-CN', { month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit' }) : '';
+      const questions = (iv.questions || []).map((q, qi) =>
+        `<div class="iv-question">
+          <div class="q-head" onclick="toggleQuestionDetail(this.querySelector('.q-toggle'))">
+            <span class="q-num">Q${qi+1}</span>
+            <span class="q-text">${q.question || '(无问题)'}</span>
+            <span class="q-toggle">展开</span>
+          </div>
+          <div class="q-detail">
+            ${q.myAnswer ? `<div class="q-label">我的回答</div><div class="q-answer">${q.myAnswer}</div>` : ''}
+            ${q.suggestion ? `<div class="q-label">优化建议</div><div class="q-suggestion">${q.suggestion}</div>` : ''}
+          </div>
+        </div>`
+      ).join('');
+      return `<div class="iv-card" style="margin:10px 0;">
+        <div class="iv-card-head" onclick="toggleInterviewCard('${iv.id}')">
+          <div class="iv-info">
+            <span class="iv-round">${iv.round}</span>
+            <span class="iv-result" style="color:${resultColors[iv.result]};background:${resultBg[iv.result]};">${resultLabels[iv.result] || '待定'}</span>
+            <span class="iv-date">${dateStr}</span>
+          </div>
+          <div class="iv-actions">
+            <button class="btn btn-sm" style="background:#F1F5F9;" onclick="event.stopPropagation();openEditInterview('${iv.id}')">编辑</button>
+          </div>
         </div>
-        <div class="q-detail">
-          ${q.myAnswer ? `<div class="q-label">我的回答</div><div class="q-answer">${q.myAnswer}</div>` : ''}
-          ${q.suggestion ? `<div class="q-label">优化建议</div><div class="q-suggestion">${q.suggestion}</div>` : ''}
+        <div class="iv-card-body" id="ivBody_${iv.id}">
+          <div class="iv-meta">
+            ${iv.interviewer ? `<span>面试官：${iv.interviewer}</span>` : ''}
+            <span>问题数：${(iv.questions || []).length}</span>
+          </div>
+          ${questions}
+          ${iv.summary ? `<div class="iv-summary"><div class="iv-summary-label">面试复盘</div>${iv.summary}</div>` : ''}
         </div>
-      </div>`
-    ).join('');
-    return `<div class="iv-card">
-      <div class="iv-card-head" onclick="toggleInterviewCard('${iv.id}')">
-        <div class="iv-info">
-          <span class="iv-company">${iv.company}</span>
-          <span class="iv-round">${iv.round}</span>
-          <span class="iv-result" style="color:${resultColors[iv.result]};background:${resultBg[iv.result]};">${resultLabels[iv.result] || '待定'}</span>
-          <span class="iv-date">${dateStr}</span>
+      </div>`;
+    }).join('');
+    const statusBadge = `<span class="badge ${badgeClass(job.status)}">${job.status}</span>`;
+    return `<div class="card" style="margin-bottom:16px;">
+      <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <h3 style="margin:0;">${job.company} · ${job.position}</h3>
+          ${statusBadge}
         </div>
-        <div class="iv-actions">
-          <button class="btn btn-sm" style="background:#F1F5F9;" onclick="event.stopPropagation();openEditInterview('${iv.id}')">编辑</button>
-        </div>
+        <button class="btn btn-sm btn-blue" onclick="openInterviewModal('${job.id}')">+ 记录面试</button>
       </div>
-      <div class="iv-card-body" id="ivBody_${iv.id}">
-        <div class="iv-meta">
-          ${iv.position ? `<span>岗位：${iv.position}</span>` : ''}
-          ${iv.interviewer ? `<span>面试官：${iv.interviewer}</span>` : ''}
-          <span>问题数：${(iv.questions || []).length}</span>
-        </div>
-        ${questions}
-        ${iv.summary ? `<div class="iv-summary"><div class="iv-summary-label">面试复盘</div>${iv.summary}</div>` : ''}
+      <div class="card-body">
+        ${jobIvs.length === 0 ? '<div style="text-align:center;color:var(--text-secondary);font-size:13px;padding:20px 0;">暂无面试记录，点击右上方按钮记录</div>' : ivCards}
       </div>
     </div>`;
   }).join('');

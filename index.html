@@ -408,6 +408,14 @@ td a:hover { text-decoration: underline; }
         <div class="form-group"><label>面试官</label><input id="iv_interviewer" placeholder="如：王总、HR 小姐姐"></div>
         <div class="form-group full"><label>面试感受 / 整体复盘</label><textarea id="iv_summary" placeholder="面试氛围、自己发挥、改进方向..."></textarea></div>
       </div>
+      <div style="margin-top:16px;background:linear-gradient(135deg,#EFF6FF,#F5F3FF);border:1px solid #DBEAFE;border-radius:10px;padding:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <label style="font-size:13px;font-weight:600;color:var(--primary-dark);">AI 逐字稿分析</label>
+          <button class="btn btn-sm btn-blue" id="ivAiBtn" onclick="runAiAnalysis()">AI 智能分析</button>
+        </div>
+        <textarea id="iv_transcript" placeholder="粘贴本场面试的完整逐字稿（面试官和候选人的对话），AI 会自动提取问题、概括回答、给出优化建议并填充下方表单..." style="width:100%;min-height:90px;padding:10px;border:1px solid var(--border);border-radius:8px;font-size:12px;font-family:inherit;resize:vertical;"></textarea>
+        <div id="ivAiStatus" style="font-size:12px;color:var(--text-secondary);margin-top:6px;"></div>
+      </div>
       <div style="margin-top:16px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
           <label style="font-size:13px;font-weight:600;">面试问题</label>
@@ -796,6 +804,7 @@ function renderReview() {
 let interviews = [];
 let ivEditingId = null;
 let ivQuestionCount = 0;
+let ivAnalysis = null; // holds the AI analysis object for the current interview being edited
 
 function loadInterviews() {
   try { interviews = JSON.parse(localStorage.getItem('interviews_data') || '[]'); } catch(e) { interviews = []; }
@@ -814,6 +823,9 @@ function openInterviewModal(jobId) {
   document.getElementById('iv_summary').value = '';
   document.getElementById('ivQuestions').innerHTML = '';
   document.getElementById('ivDeleteBtn').style.display = 'none';
+  document.getElementById('iv_transcript').value = '';
+  document.getElementById('ivAiStatus').textContent = '';
+  ivAnalysis = null;
   ivQuestionCount = 0;
   // Populate job selector with interview-stage jobs
   const ivStatuses = ['一面中','二面中','三面中','一面挂','二面挂','三面挂','offer'];
@@ -873,6 +885,9 @@ function openEditInterview(id) {
   document.getElementById('iv_summary').value = iv.summary || '';
   document.getElementById('ivQuestions').innerHTML = '';
   ivQuestionCount = 0;
+  document.getElementById('iv_transcript').value = iv.transcript || '';
+  document.getElementById('ivAiStatus').textContent = iv.analysis ? '已存在 AI 分析报告，保存时保留。' : '';
+  ivAnalysis = iv.analysis || null;
   (iv.questions || []).forEach(q => addQuestionForm(q.question, q.myAnswer, q.suggestion));
   document.getElementById('ivDeleteBtn').style.display = 'block';
   document.getElementById('interviewModal').classList.add('show');
@@ -900,6 +915,54 @@ function addQuestionForm(q, a, s) {
   document.getElementById('ivQuestions').appendChild(div);
 }
 
+async function runAiAnalysis() {
+  const transcript = document.getElementById('iv_transcript').value.trim();
+  if (transcript.length < 50) { showToast('请先粘贴完整的面试逐字稿', 'warn'); return; }
+  const btn = document.getElementById('ivAiBtn');
+  const status = document.getElementById('ivAiStatus');
+  btn.disabled = true;
+  btn.textContent = '分析中...';
+  status.textContent = 'AI 正在分析逐字稿，通常需要 20-40 秒，请稍候...';
+  try {
+    const endpoint = location.hostname.includes('pages.dev')
+      ? '/api/analyze'
+      : 'https://qiu-zhao-workspace.pages.dev/api/analyze';
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ transcript }),
+    });
+    const data = await res.json();
+    if (!res.ok || data.error) {
+      status.textContent = '分析失败：' + (data.error || '未知错误');
+      showToast('AI 分析失败', 'warn');
+      return;
+    }
+    if (data.parseError) {
+      status.textContent = 'AI 返回格式异常，已保留原始文本';
+      ivAnalysis = { raw: data.raw };
+      return;
+    }
+    ivAnalysis = data;
+    // Auto-fill summary
+    if (data.overall && data.overall.summary) {
+      document.getElementById('iv_summary').value = data.overall.summary;
+    }
+    // Auto-fill questions
+    document.getElementById('ivQuestions').innerHTML = '';
+    ivQuestionCount = 0;
+    (data.questions || []).forEach(q => addQuestionForm(q.question, q.answerSummary, q.betterAnswer));
+    status.textContent = `分析完成：提取了 ${ (data.questions||[]).length } 个问题，已自动填充表单。完整报告保存后可在面试卡片中查看。`;
+    showToast('AI 分析完成');
+  } catch (err) {
+    status.textContent = '网络错误：' + err.message;
+    showToast('AI 分析失败', 'warn');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'AI 智能分析';
+  }
+}
+
 function saveInterview() {
   const company = document.getElementById('iv_company').value.trim();
   const position = document.getElementById('iv_position').value.trim();
@@ -920,6 +983,8 @@ function saveInterview() {
     interviewer: document.getElementById('iv_interviewer').value.trim(),
     summary: document.getElementById('iv_summary').value.trim(),
     questions,
+    analysis: ivAnalysis || null,
+    transcript: document.getElementById('iv_transcript').value.trim(),
   };
   if (ivEditingId) {
     const idx = interviews.findIndex(i => i.id === ivEditingId);
@@ -1041,6 +1106,45 @@ function renderFreqQuestions() {
   ).join('') + '</ul>';
 }
 
+function renderAiReport(a) {
+  if (!a) return '';
+  if (a.raw) return `<div class="iv-summary" style="background:#F8FAFC;"><div class="iv-summary-label">AI 原始输出</div>${a.raw}</div>`;
+  const o = a.overall || {};
+  const scores = a.scores || {};
+  const scoreRows = Object.entries(scores).map(([k, v]) =>
+    `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+      <span style="width:70px;font-size:12px;color:var(--text-secondary);flex-shrink:0;">${k}</span>
+      <div style="flex:1;height:8px;background:#F1F5F9;border-radius:4px;overflow:hidden;"><div style="height:100%;width:${(v.score||0)*10}%;background:var(--primary);border-radius:4px;"></div></div>
+      <span style="width:24px;font-size:12px;font-weight:700;color:var(--primary);text-align:right;">${v.score||0}</span>
+    </div>`).join('');
+  const scoreAdvice = Object.entries(scores).filter(([,v]) => v.advice).map(([k,v]) => `<div style="font-size:12px;margin-bottom:4px;"><strong>${k}：</strong>${v.advice}</div>`).join('');
+  const highlights = (a.highlights||[]).map(h => `<div style="font-size:12px;margin-bottom:4px;">✨ ${h}</div>`).join('');
+  const improvements = (a.improvements||[]).map(im =>
+    `<div style="background:white;border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:8px;">
+      <div style="font-size:13px;font-weight:600;color:var(--danger);margin-bottom:4px;">${im.problem}</div>
+      ${im.impact ? `<div style="font-size:12px;color:var(--text-secondary);margin-bottom:4px;">影响：${im.impact}</div>` : ''}
+      ${im.fix ? `<div style="font-size:12px;margin-bottom:4px;">改进：${im.fix}</div>` : ''}
+      ${im.template ? `<div class="q-suggestion" style="margin-top:6px;">话术：${im.template}</div>` : ''}
+    </div>`).join('');
+  const ivv = a.interviewerView || {};
+  const actionList = (a.actionList||[]).map((x,i) => `<div style="font-size:12px;margin-bottom:4px;">${i+1}. ${x}</div>`).join('');
+  return `<div style="margin-top:12px;background:#F8FAFC;border-radius:10px;padding:14px;">
+    <div style="font-size:13px;font-weight:700;margin-bottom:10px;color:var(--primary-dark);">AI 复盘报告</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
+      <div style="background:white;border-radius:8px;padding:10px;"><div style="font-size:11px;color:var(--text-secondary);">通过率预测</div><div style="font-size:20px;font-weight:700;color:var(--primary);">${o.passRate || '-'}</div></div>
+      <div style="background:white;border-radius:8px;padding:10px;"><div style="font-size:11px;color:var(--text-secondary);">面试官关注</div><div style="font-size:12px;margin-top:2px;">${o.interviewerFocus || '-'}</div></div>
+    </div>
+    ${o.strength ? `<div style="font-size:12px;margin-bottom:6px;"><strong style="color:var(--success);">优势：</strong>${o.strength}</div>` : ''}
+    ${o.risk ? `<div style="font-size:12px;margin-bottom:10px;"><strong style="color:var(--danger);">风险：</strong>${o.risk}</div>` : ''}
+    ${scoreRows ? `<div style="margin-bottom:10px;">${scoreRows}</div>` : ''}
+    ${scoreAdvice ? `<div style="background:white;border-radius:8px;padding:10px;margin-bottom:10px;"><div style="font-size:12px;font-weight:600;margin-bottom:6px;">评分改进建议</div>${scoreAdvice}</div>` : ''}
+    ${highlights ? `<div style="background:white;border-radius:8px;padding:10px;margin-bottom:10px;"><div style="font-size:12px;font-weight:600;margin-bottom:6px;">本场亮点</div>${highlights}</div>` : ''}
+    ${improvements ? `<div style="margin-bottom:10px;"><div style="font-size:12px;font-weight:600;margin-bottom:6px;">主要问题与改进</div>${improvements}</div>` : ''}
+    ${ivv.positive || ivv.concern ? `<div style="background:white;border-radius:8px;padding:10px;margin-bottom:10px;"><div style="font-size:12px;font-weight:600;margin-bottom:6px;">面试官视角</div>${ivv.positive?`<div style="font-size:12px;margin-bottom:4px;"><strong style="color:var(--success);">正面：</strong>${ivv.positive}</div>`:''}${ivv.concern?`<div style="font-size:12px;margin-bottom:4px;"><strong style="color:var(--danger);">担忧：</strong>${ivv.concern}</div>`:''}${ivv.reason?`<div style="font-size:12px;color:var(--text-secondary);">${ivv.recommend?'✅ 推荐进入下一轮':'❌ 不推荐'} · ${ivv.reason}</div>`:''}</div>` : ''}
+    ${actionList ? `<div style="background:white;border-radius:8px;padding:10px;"><div style="font-size:12px;font-weight:600;margin-bottom:6px;">行动清单</div>${actionList}</div>` : ''}
+  </div>`;
+}
+
 function renderInterviews() {
   const el = document.getElementById('ivJobList');
   if (!el) return;
@@ -1096,6 +1200,7 @@ function renderInterviews() {
           </div>
           ${questions}
           ${iv.summary ? `<div class="iv-summary"><div class="iv-summary-label">面试复盘</div>${iv.summary}</div>` : ''}
+          ${renderAiReport(iv.analysis)}
         </div>
       </div>`;
     }).join('');

@@ -194,6 +194,64 @@ td a:hover { text-decoration: underline; }
 .btn-blue:disabled { opacity: 0.55; cursor: not-allowed; }
 .inline-status { padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 500; border: 1px solid var(--border); background: white; cursor: pointer; min-width: 80px; }
 .inline-status:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(59,130,246,0.15); }
+
+/* Interview */
+.iv-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+.iv-header h3 { font-size: 16px; font-weight: 600; }
+.iv-card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 16px; overflow: hidden; border-left: 4px solid var(--primary); }
+.iv-card-head { padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
+.iv-card-head:hover { background: #FAFBFD; }
+.iv-card-head .iv-info { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.iv-card-head .iv-company { font-size: 15px; font-weight: 700; }
+.iv-card-head .iv-round { font-size: 11px; font-weight: 600; padding: 2px 10px; border-radius: 12px; background: var(--primary-light); color: var(--primary-dark); }
+.iv-card-head .iv-date { font-size: 12px; color: var(--text-secondary); }
+.iv-card-head .iv-result { font-size: 11px; font-weight: 600; padding: 2px 10px; border-radius: 12px; }
+.iv-card-head .iv-actions { display: flex; gap: 6px; }
+.iv-card-body { padding: 0 18px 16px; display: none; border-top: 1px solid var(--border); }
+.iv-card-body.open { display: block; padding-top: 14px; }
+.iv-meta { font-size: 12px; color: var(--text-secondary); margin-bottom: 12px; }
+.iv-meta span { margin-right: 16px; }
+.iv-question { background: #F8FAFC; border-radius: 8px; padding: 12px 14px; margin-bottom: 10px; }
+.iv-question .q-head { display: flex; align-items: flex-start; gap: 8px; cursor: pointer; }
+.iv-question .q-num { font-size: 11px; font-weight: 700; color: var(--primary); background: var(--primary-light); border-radius: 4px; padding: 1px 6px; flex-shrink: 0; margin-top: 1px; }
+.iv-question .q-text { font-size: 13px; font-weight: 500; flex: 1; }
+.iv-question .q-toggle { font-size: 10px; color: var(--text-secondary); transition: transform 0.2s; flex-shrink: 0; margin-top: 3px; }
+.iv-question .q-detail { margin-top: 10px; display: none; }
+.iv-question .q-detail.open { display: block; }
+.iv-question .q-label { font-size: 11px; font-weight: 600; color: var(--text-secondary); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+.iv-question .q-answer { font-size: 13px; color: var(--text); line-height: 1.6; padding: 8px 10px; background: white; border-radius: 6px; margin-bottom: 8px; border: 1px solid var(--border); white-space: pre-wrap; }
+.iv-question .q-suggestion { font-size: 13px; color: #92400E; line-height: 1.6; padding: 8px 10px; background: #FEF3C7; border-radius: 6px; white-space: pre-wrap; }
+.iv-summary { font-size: 13px; color: var(--text); padding: 10px 12px; background: #F0FDF4; border-radius: 8px; margin-top: 10px; white-space: pre-wrap; line-height: 1.6; }
+.iv-summary-label { font-size: 11px; font-weight: 600; color: #065F46; margin-bottom: 4px; }
+.iv-stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; margin-bottom: 20px; }
+.iv-stat-card { background: var(--card); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); }
+.iv-stat-card .label { font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; }
+.iv-stat-card .value { font-size: 24px; font-weight: 700; }
+.iv-stat-card .sub { font-size: 11px; color: var(--text-secondary); margin-top: 4px; }
+.iv-freq-list { list-style: none; padding: 0; margin: 0; }
+.iv-freq-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #F1F5F9; font-size: 13px; }
+.iv-freq-item:last-child { border-bottom: none; }
+.iv-freq-item .q-text { flex: 1; margin-right: 10px; }
+.iv-freq-item .q-count { font-size: 11px; font-weight: 700; color: var(--primary); background: var(--primary-light); border-radius: 10px; padding: 1px 8px; flex-shrink: 0; }
+.iv-calendar-event { padding: 10px 12px; border-left: 3px solid var(--primary); background: #F8FAFC; border-radius: 0 8px 8px 0; margin-bottom: 10px; }
+.iv-calendar-event .ev-date { font-size: 13px; font-weight: 700; color: var(--primary); }
+.iv-calendar-event .ev-company { font-size: 13px; font-weight: 600; margin-top: 2px; }
+.iv-calendar-event .ev-detail { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+.iv-calendar-event .ev-countdown { font-size: 11px; font-weight: 600; margin-top: 4px; }
+.iv-calendar-event.urgent { border-left-color: var(--danger); background: #FEF2F2; }
+.iv-calendar-event.urgent .ev-date { color: var(--danger); }
+.iv-calendar-event.urgent .ev-countdown { color: var(--danger); }
+.iv-calendar-event.today { border-left-color: var(--warning); background: #FFFBEB; }
+.iv-calendar-event.today .ev-date { color: var(--warning); }
+.iv-calendar-event.today .ev-countdown { color: var(--warning); }
+
+/* Question form in interview modal */
+.q-form-group { background: #F8FAFC; border-radius: 8px; padding: 12px; margin-bottom: 10px; position: relative; }
+.q-form-group .q-form-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.q-form-group .q-form-header label { font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+.q-form-group .q-remove { font-size: 11px; color: var(--danger); cursor: pointer; background: none; border: none; padding: 2px 6px; }
+.q-form-group textarea { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 12px; font-family: inherit; resize: vertical; min-height: 50px; }
+.q-form-group textarea:focus { outline: none; border-color: var(--primary); }
 </style>
 </head>
 <body>
@@ -212,6 +270,7 @@ td a:hover { text-decoration: underline; }
     <div class="tab active" data-tab="review">数据复盘</div>
     <div class="tab" data-tab="today">今日新增</div>
     <div class="tab" data-tab="library">岗位总库</div>
+    <div class="tab" data-tab="interview">面试复盘</div>
   </div>
 </div>
 
@@ -244,7 +303,7 @@ td a:hover { text-decoration: underline; }
       <div class="table-wrap">
         <table>
           <thead><tr>
-            <th>公司名称</th><th>岗位名称</th><th>工作城市</th><th>投递进度</th><th>官网链接</th><th>发布时间</th><th>投递日期</th><th>信息来源</th><th>操作</th>
+            <th>公司名称</th><th>岗位名称</th><th>工作城市</th><th>投递进度</th><th>官网链接</th><th>投递日期</th><th>信息来源</th><th>操作</th>
           </tr></thead>
           <tbody id="libraryBody"></tbody>
         </table>
@@ -280,6 +339,10 @@ td a:hover { text-decoration: underline; }
         <h4>每周投递趋势</h4>
         <div id="weeklyTrend" style="padding:10px 0;"></div>
       </div>
+      <div class="chart-box" style="grid-column: 1 / -1;">
+        <h4>面试日历</h4>
+        <div id="reviewCalendar" style="padding:10px 0;"></div>
+      </div>
     </div>
     <div class="card" style="margin-top:20px">
       <div class="card-header"><h3>最近投递动态</h3></div>
@@ -291,9 +354,71 @@ td a:hover { text-decoration: underline; }
       </div>
     </div>
   </div>
+
+  <!-- Interview Review -->
+  <div class="panel" id="panel-interview">
+    <div class="iv-header">
+      <h3 id="ivHeaderTitle">面试复盘</h3>
+      <button class="btn btn-blue" onclick="openInterviewModal()">+ 新增面试</button>
+    </div>
+    <div id="ivUpcoming"></div>
+    <div class="iv-stats" id="ivStats"></div>
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-header"><h3>高频面试问题</h3></div>
+      <div class="card-body" id="ivFreqQuestions"></div>
+    </div>
+    <div id="ivList"></div>
+  </div>
 </div>
 
-<!-- Add/Edit Modal -->
+<!-- Interview Modal -->
+<div class="modal-overlay" id="interviewModal">
+  <div class="modal" style="width:640px;">
+    <div class="modal-header">
+      <h3 id="ivModalTitle">新增面试</h3>
+      <button class="modal-close" onclick="closeInterviewModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group"><label>公司名称 *</label><input id="iv_company" placeholder="如：字节跳动" list="ivCompanyList"></div>
+        <datalist id="ivCompanyList"></datalist>
+        <div class="form-group"><label>岗位名称 *</label><input id="iv_position" placeholder="如：产品经理"></div>
+        <div class="form-group"><label>面试轮次 *</label>
+          <select id="iv_round">
+            <option value="一面">一面</option>
+            <option value="二面">二面</option>
+            <option value="三面">三面</option>
+            <option value="HR面">HR面</option>
+            <option value="加面">加面</option>
+            <option value="群面">群面</option>
+          </select>
+        </div>
+        <div class="form-group"><label>面试结果</label>
+          <select id="iv_result">
+            <option value="pending">待定</option>
+            <option value="pass">通过</option>
+            <option value="fail">未通过</option>
+          </select>
+        </div>
+        <div class="form-group"><label>面试时间</label><input type="datetime-local" id="iv_datetime"></div>
+        <div class="form-group"><label>面试官</label><input id="iv_interviewer" placeholder="如：王总、HR 小姐姐"></div>
+        <div class="form-group full"><label>面试感受 / 整体复盘</label><textarea id="iv_summary" placeholder="面试氛围、自己发挥、改进方向..."></textarea></div>
+      </div>
+      <div style="margin-top:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <label style="font-size:13px;font-weight:600;">面试问题</label>
+          <button class="btn btn-sm" style="background:var(--primary-light);color:var(--primary-dark);" onclick="addQuestionForm()">+ 添加问题</button>
+        </div>
+        <div id="ivQuestions"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" id="ivDeleteBtn" style="display:none;margin-right:auto;" onclick="deleteInterview()">删除</button>
+      <button class="btn" style="background:#F1F5F9;" onclick="closeInterviewModal()">取消</button>
+      <button class="btn btn-blue" onclick="saveInterview()">保存</button>
+    </div>
+  </div>
+</div>
 <div class="modal-overlay" id="jobModal">
   <div class="modal">
     <div class="modal-header">
@@ -523,14 +648,13 @@ function renderLibrary() {
 
   document.getElementById('libCount').textContent = `共 ${filtered.length} 条`;
   document.getElementById('libraryBody').innerHTML = filtered.length === 0
-    ? '<tr><td colspan="9" style="text-align:center;color:var(--text-secondary);padding:30px;">暂无岗位数据，点击右上角「+ 新增岗位」开始添加</td></tr>'
+    ? '<tr><td colspan="8" style="text-align:center;color:var(--text-secondary);padding:30px;">暂无岗位数据，点击右上角「+ 新增岗位」开始添加</td></tr>'
     : filtered.map(j => `<tr>
         <td><strong>${j.company}</strong></td>
         <td>${j.position}</td>
         <td>${j.city || '-'}</td>
         <td><select class="inline-status" onchange="changeStatus('${j.id}',this.value)" style="color:${STATUS_COLORS[j.status]||'#333'};font-weight:600;">${STATUSES.map(s => `<option value="${s}" ${s===j.status?'selected':''}>${s}</option>`).join('')}</select></td>
         <td>${j.link ? `<a href="${j.link}" target="_blank">查看 →</a>` : '-'}</td>
-        <td>${j.publishDate || '-'}</td>
         <td>${j.applyDate || '-'}</td>
         <td>${j.source || '-'}</td>
         <td>
@@ -659,15 +783,292 @@ function renderReview() {
     : recent.map(j => `<tr><td><strong>${j.company}</strong></td><td>${j.position}</td><td><span class="badge ${badgeClass(j.status)}">${j.status}</span></td><td style="color:var(--text-secondary);font-size:12px;">${j.updatedAt ? new Date(j.updatedAt).toLocaleDateString('zh-CN') : '-'}</td></tr>`).join('');
 }
 
+// === INTERVIEW ===
+let interviews = [];
+let ivEditingId = null;
+let ivQuestionCount = 0;
+
+function loadInterviews() {
+  try { interviews = JSON.parse(localStorage.getItem('interviews_data') || '[]'); } catch(e) { interviews = []; }
+}
+function saveInterviews() { localStorage.setItem('interviews_data', JSON.stringify(interviews)); }
+
+function openInterviewModal() {
+  ivEditingId = null;
+  document.getElementById('ivModalTitle').textContent = '新增面试';
+  document.getElementById('iv_company').value = '';
+  document.getElementById('iv_position').value = '';
+  document.getElementById('iv_round').value = '一面';
+  document.getElementById('iv_result').value = 'pending';
+  document.getElementById('iv_datetime').value = '';
+  document.getElementById('iv_interviewer').value = '';
+  document.getElementById('iv_summary').value = '';
+  document.getElementById('ivQuestions').innerHTML = '';
+  document.getElementById('ivDeleteBtn').style.display = 'none';
+  ivQuestionCount = 0;
+  // Populate company datalist
+  const companies = [...new Set(jobs.map(j => j.company))];
+  document.getElementById('ivCompanyList').innerHTML = companies.map(c => `<option value="${c}">`).join('');
+  document.getElementById('interviewModal').classList.add('show');
+}
+
+function openEditInterview(id) {
+  const iv = interviews.find(i => i.id === id);
+  if (!iv) return;
+  ivEditingId = id;
+  document.getElementById('ivModalTitle').textContent = '编辑面试';
+  document.getElementById('iv_company').value = iv.company;
+  document.getElementById('iv_position').value = iv.position;
+  document.getElementById('iv_round').value = iv.round;
+  document.getElementById('iv_result').value = iv.result;
+  document.getElementById('iv_datetime').value = iv.datetime;
+  document.getElementById('iv_interviewer').value = iv.interviewer || '';
+  document.getElementById('iv_summary').value = iv.summary || '';
+  document.getElementById('ivQuestions').innerHTML = '';
+  ivQuestionCount = 0;
+  // Populate company datalist
+  const companies = [...new Set(jobs.map(j => j.company))];
+  document.getElementById('ivCompanyList').innerHTML = companies.map(c => `<option value="${c}">`).join('');
+  // Load existing questions
+  (iv.questions || []).forEach(q => addQuestionForm(q.question, q.myAnswer, q.suggestion));
+  document.getElementById('ivDeleteBtn').style.display = 'block';
+  document.getElementById('interviewModal').classList.add('show');
+}
+
+function closeInterviewModal() {
+  document.getElementById('interviewModal').classList.remove('show');
+}
+
+function addQuestionForm(q, a, s) {
+  ivQuestionCount++;
+  const idx = ivQuestionCount;
+  const div = document.createElement('div');
+  div.className = 'q-form-group';
+  div.id = 'qf_' + idx;
+  div.innerHTML = `
+    <div class="q-form-header">
+      <label>问题 #${idx}</label>
+      <button class="q-remove" onclick="this.closest('.q-form-group').remove()">删除</button>
+    </div>
+    <textarea placeholder="面试官问的问题..." style="margin-bottom:6px;" data-field="question">${q || ''}</textarea>
+    <textarea placeholder="你的回答..." style="margin-bottom:6px;" data-field="myAnswer">${a || ''}</textarea>
+    <textarea placeholder="优化建议 / 标准答案..." data-field="suggestion">${s || ''}</textarea>
+  `;
+  document.getElementById('ivQuestions').appendChild(div);
+}
+
+function saveInterview() {
+  const company = document.getElementById('iv_company').value.trim();
+  const position = document.getElementById('iv_position').value.trim();
+  if (!company || !position) { showToast('请填写公司名称和岗位名称', 'warn'); return; }
+  const questions = [];
+  document.querySelectorAll('#ivQuestions .q-form-group').forEach(qf => {
+    const q = qf.querySelector('[data-field="question"]').value.trim();
+    const a = qf.querySelector('[data-field="myAnswer"]').value.trim();
+    const s = qf.querySelector('[data-field="suggestion"]').value.trim();
+    if (q) questions.push({ question: q, myAnswer: a, suggestion: s });
+  });
+  const data = {
+    company, position,
+    round: document.getElementById('iv_round').value,
+    result: document.getElementById('iv_result').value,
+    datetime: document.getElementById('iv_datetime').value,
+    interviewer: document.getElementById('iv_interviewer').value.trim(),
+    summary: document.getElementById('iv_summary').value.trim(),
+    questions,
+  };
+  if (ivEditingId) {
+    const idx = interviews.findIndex(i => i.id === ivEditingId);
+    if (idx >= 0) { interviews[idx] = { ...interviews[idx], ...data, updatedAt: new Date().toISOString() }; }
+  } else {
+    interviews.push({ id: genId(), ...data, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
+  }
+  saveInterviews();
+  closeInterviewModal();
+  renderAll();
+  showToast(ivEditingId ? '面试已更新' : '面试已添加');
+}
+
+function deleteInterview() {
+  if (!ivEditingId) return;
+  if (!confirm('确定删除这条面试记录？')) return;
+  interviews = interviews.filter(i => i.id !== ivEditingId);
+  saveInterviews();
+  closeInterviewModal();
+  renderAll();
+  showToast('已删除');
+}
+
+function toggleInterviewCard(id) {
+  const body = document.getElementById('ivBody_' + id);
+  if (body) body.classList.toggle('open');
+}
+
+function toggleQuestionDetail(btn) {
+  const detail = btn.closest('.iv-question').querySelector('.q-detail');
+  if (detail) detail.classList.toggle('open');
+  btn.textContent = detail && detail.classList.contains('open') ? '收起' : '展开';
+}
+
+function getUpcomingInterviews() {
+  const now = new Date();
+  return interviews
+    .filter(i => i.datetime && new Date(i.datetime) >= now)
+    .sort((a, b) => new Date(a.datetime) - new Date(b.datetime));
+}
+
+function formatCountdown(datetime) {
+  const now = new Date();
+  const dt = new Date(datetime);
+  const diffMs = dt - now;
+  const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+  if (diffDays < 0) return '已过';
+  if (diffDays === 0) return '今天';
+  if (diffDays === 1) return '明天';
+  if (diffDays <= 7) return `${diffDays} 天后`;
+  return `${Math.ceil(diffDays / 7)} 周后`;
+}
+
+function getEventClass(datetime) {
+  const now = new Date();
+  const dt = new Date(datetime);
+  const diffDays = Math.ceil((dt - now) / (1000 * 60 * 60 * 24));
+  if (diffDays <= 1 && diffDays >= 0) return diffDays === 0 ? 'today' : '';
+  if (diffDays <= 3 && diffDays >= 0) return 'urgent';
+  return '';
+}
+
+function renderCalendar(targetId, maxItems) {
+  const upcoming = getUpcomingInterviews().slice(0, maxItems || 99);
+  const el = document.getElementById(targetId);
+  if (!el) return;
+  if (upcoming.length === 0) {
+    el.innerHTML = '<div style="text-align:center;color:var(--text-secondary);font-size:13px;padding:20px 0;">暂无即将到来的面试</div>';
+    return;
+  }
+  el.innerHTML = upcoming.map(iv => {
+    const dt = new Date(iv.datetime);
+    const dateStr = `${dt.getMonth()+1}月${dt.getDate()}日 ${dt.getHours().toString().padStart(2,'0')}:${dt.getMinutes().toString().padStart(2,'0')}`;
+    const cls = getEventClass(iv.datetime);
+    return `<div class="iv-calendar-event ${cls}">
+      <div class="ev-date">${dateStr} <span class="ev-countdown">${formatCountdown(iv.datetime)}</span></div>
+      <div class="ev-company">${iv.company} · ${iv.position}</div>
+      <div class="ev-detail">${iv.round}${iv.interviewer ? ' · ' + iv.interviewer : ''}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderInterviewStats() {
+  const el = document.getElementById('ivStats');
+  if (!el) return;
+  const total = interviews.length;
+  const passed = interviews.filter(i => i.result === 'pass').length;
+  const failed = interviews.filter(i => i.result === 'fail').length;
+  const pending = interviews.filter(i => i.result === 'pending').length;
+  const totalQuestions = interviews.reduce((sum, i) => sum + (i.questions || []).length, 0);
+  el.innerHTML = `
+    <div class="iv-stat-card"><div class="label">面试总场次</div><div class="value">${total}</div><div class="sub">共 ${totalQuestions} 道问题</div></div>
+    <div class="iv-stat-card"><div class="label">通过</div><div class="value" style="color:var(--success);">${passed}</div><div class="sub">通过率 ${total ? Math.round(passed/total*100) : 0}%</div></div>
+    <div class="iv-stat-card"><div class="label">未通过</div><div class="value" style="color:var(--danger);">${failed}</div></div>
+    <div class="iv-stat-card"><div class="label">待定</div><div class="value" style="color:var(--text-secondary);">${pending}</div></div>
+  `;
+}
+
+function renderFreqQuestions() {
+  const el = document.getElementById('ivFreqQuestions');
+  if (!el) return;
+  const freq = {};
+  interviews.forEach(iv => {
+    (iv.questions || []).forEach(q => {
+      const key = q.question.trim();
+      if (!key) return;
+      if (!freq[key]) freq[key] = { text: key, count: 0, companies: new Set() };
+      freq[key].count++;
+      freq[key].companies.add(iv.company);
+    });
+  });
+  const sorted = Object.values(freq).sort((a, b) => b.count - a.count).slice(0, 10);
+  if (sorted.length === 0) {
+    el.innerHTML = '<div style="text-align:center;color:var(--text-secondary);font-size:13px;padding:10px 0;">暂无面试数据，添加面试后自动统计高频问题</div>';
+    return;
+  }
+  el.innerHTML = '<ul class="iv-freq-list">' + sorted.map(q =>
+    `<li class="iv-freq-item"><span class="q-text">${q.text}</span><span class="q-count">${q.count} 次 · ${[...q.companies].join('/')}</span></li>`
+  ).join('') + '</ul>';
+}
+
+function renderInterviews() {
+  const el = document.getElementById('ivList');
+  if (!el) return;
+  document.getElementById('ivHeaderTitle').textContent = `面试复盘（${interviews.length} 场）`;
+  const sorted = [...interviews].sort((a, b) => {
+    if (a.datetime && b.datetime) return new Date(b.datetime) - new Date(a.datetime);
+    if (a.datetime) return -1;
+    if (b.datetime) return 1;
+    return new Date(b.createdAt) - new Date(a.createdAt);
+  });
+  if (sorted.length === 0) {
+    el.innerHTML = '<div class="card"><div class="card-body" style="text-align:center;color:var(--text-secondary);padding:40px;">暂无面试记录，点击「+ 新增面试」开始记录你的每一场面试</div></div>';
+    return;
+  }
+  const resultLabels = { pending: '待定', pass: '通过', fail: '未通过' };
+  const resultColors = { pending: '#94A3B8', pass: '#10B981', fail: '#EF4444' };
+  const resultBg = { pending: '#F1F5F9', pass: '#D1FAE5', fail: '#FEE2E2' };
+  el.innerHTML = sorted.map(iv => {
+    const dateStr = iv.datetime ? new Date(iv.datetime).toLocaleString('zh-CN', { month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit' }) : '';
+    const questions = (iv.questions || []).map((q, qi) =>
+      `<div class="iv-question">
+        <div class="q-head" onclick="toggleQuestionDetail(this.querySelector('.q-toggle'))">
+          <span class="q-num">Q${qi+1}</span>
+          <span class="q-text">${q.question || '(无问题)'}</span>
+          <span class="q-toggle">展开</span>
+        </div>
+        <div class="q-detail">
+          ${q.myAnswer ? `<div class="q-label">我的回答</div><div class="q-answer">${q.myAnswer}</div>` : ''}
+          ${q.suggestion ? `<div class="q-label">优化建议</div><div class="q-suggestion">${q.suggestion}</div>` : ''}
+        </div>
+      </div>`
+    ).join('');
+    return `<div class="iv-card">
+      <div class="iv-card-head" onclick="toggleInterviewCard('${iv.id}')">
+        <div class="iv-info">
+          <span class="iv-company">${iv.company}</span>
+          <span class="iv-round">${iv.round}</span>
+          <span class="iv-result" style="color:${resultColors[iv.result]};background:${resultBg[iv.result]};">${resultLabels[iv.result] || '待定'}</span>
+          <span class="iv-date">${dateStr}</span>
+        </div>
+        <div class="iv-actions">
+          <button class="btn btn-sm" style="background:#F1F5F9;" onclick="event.stopPropagation();openEditInterview('${iv.id}')">编辑</button>
+        </div>
+      </div>
+      <div class="iv-card-body" id="ivBody_${iv.id}">
+        <div class="iv-meta">
+          ${iv.position ? `<span>岗位：${iv.position}</span>` : ''}
+          ${iv.interviewer ? `<span>面试官：${iv.interviewer}</span>` : ''}
+          <span>问题数：${(iv.questions || []).length}</span>
+        </div>
+        ${questions}
+        ${iv.summary ? `<div class="iv-summary"><div class="iv-summary-label">面试复盘</div>${iv.summary}</div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
 function renderAll() {
   renderToday();
   renderLibrary();
   renderReview();
+  renderInterviews();
+  renderCalendar('ivUpcoming', 3);
+  renderCalendar('reviewCalendar', 5);
+  renderInterviewStats();
+  renderFreqQuestions();
 }
 
 // === EXPORT / IMPORT ===
 function exportData() {
-  const blob = new Blob([JSON.stringify(jobs, null, 2)], { type: 'application/json' });
+  const exportObj = { jobs, interviews };
+  const blob = new Blob([JSON.stringify(exportObj, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = `秋招数据_${new Date().toISOString().slice(0,10)}.json`;
@@ -682,11 +1083,21 @@ function importData(e) {
   reader.onload = function(ev) {
     try {
       const data = JSON.parse(ev.target.result);
+      // Support both old format (array) and new format (object with jobs + interviews)
       if (Array.isArray(data)) {
-        if (confirm(`导入 ${data.length} 条数据？（将与现有数据合并）`)) {
+        if (confirm(`导入 ${data.length} 条岗位数据？（将与现有数据合并）`)) {
           jobs = [...data, ...jobs];
           saveJobs(); renderAll();
           showToast(`已导入 ${data.length} 条`);
+        }
+      } else if (data.jobs || data.interviews) {
+        const jc = (data.jobs || []).length;
+        const ic = (data.interviews || []).length;
+        if (confirm(`导入 ${jc} 条岗位 + ${ic} 条面试？`)) {
+          if (data.jobs) { jobs = [...data.jobs, ...jobs]; saveJobs(); }
+          if (data.interviews) { interviews = [...data.interviews, ...interviews]; saveInterviews(); }
+          renderAll();
+          showToast(`已导入 ${jc} 岗位 + ${ic} 面试`);
         }
       }
     } catch(err) { showToast('文件格式错误'); }
@@ -697,6 +1108,7 @@ function importData(e) {
 
 // === INIT ===
 loadJobs();
+loadInterviews();
 renderAll();
 </script>
 </body>

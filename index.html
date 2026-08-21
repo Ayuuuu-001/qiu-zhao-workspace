@@ -1053,9 +1053,12 @@ function deleteInterview() {
   showToast('已删除');
 }
 
-function toggleInterviewCard(id) {
+function toggleInterviewCard(id, btn) {
   const body = document.getElementById('ivBody_' + id);
-  if (body) body.classList.toggle('open');
+  if (body) {
+    body.classList.toggle('open');
+    if (btn) btn.textContent = body.classList.contains('open') ? '收起' : '查看详情';
+  }
 }
 
 function toggleQuestionDetail(btn) {
@@ -1215,7 +1218,7 @@ function renderInterviews() {
         </div>`
       ).join('');
       return `<div class="iv-card" style="margin:10px 0;">
-        <div class="iv-card-head" onclick="toggleInterviewCard('${iv.id}')">
+        <div class="iv-card-head" onclick="toggleInterviewCard('${iv.id}', this.querySelector('.btn-toggle-detail'))">
           <div class="iv-info">
             <span class="iv-round">${iv.round}</span>
             <span class="iv-result" style="color:${resultColors[iv.result]};background:${resultBg[iv.result]};">${resultLabels[iv.result] || '待定'}</span>
@@ -1223,6 +1226,7 @@ function renderInterviews() {
           </div>
           <div class="iv-actions">
             <button class="btn btn-sm" style="background:#F1F5F9;" onclick="event.stopPropagation();openEditInterview('${iv.id}')">编辑</button>
+            <button class="btn btn-sm btn-toggle-detail" style="background:#EFF6FF;color:var(--primary);" onclick="event.stopPropagation();toggleInterviewCard('${iv.id}', this)">查看详情</button>
           </div>
         </div>
         <div class="iv-card-body" id="ivBody_${iv.id}">

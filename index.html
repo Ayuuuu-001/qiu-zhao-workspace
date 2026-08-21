@@ -95,6 +95,7 @@ td a:hover { text-decoration: underline; }
 .form-group.full { grid-column: 1 / -1; }
 .form-group label { font-size: 12px; font-weight: 600; color: var(--text-secondary); }
 .form-group input, .form-group select, .form-group textarea {
+  width: 100%; box-sizing: border-box;
   padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px;
   font-family: inherit; color: var(--text); transition: border 0.2s; background: white;
 }
@@ -405,7 +406,7 @@ td a:hover { text-decoration: underline; }
           </select>
         </div>
         <div class="form-group"><label>面试时间</label><input type="datetime-local" id="iv_datetime"></div>
-        <div class="form-group"><label>面试感受</label><textarea id="iv_summary" placeholder="面试氛围、自己发挥、改进方向..." style="width:100%;min-height:60px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;resize:vertical;"></textarea></div>
+        <div class="form-group"><label>面试感受</label><textarea id="iv_summary" placeholder="面试氛围、自己发挥、改进方向..."></textarea></div>
       </div>
       <div style="margin-top:16px;background:linear-gradient(135deg,#EFF6FF,#F5F3FF);border:1px solid #DBEAFE;border-radius:10px;padding:14px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">

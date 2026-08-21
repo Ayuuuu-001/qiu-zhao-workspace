@@ -220,7 +220,7 @@ td a:hover { text-decoration: underline; }
 .iv-question .q-detail.open { display: block; }
 .iv-question .q-label { font-size: 11px; font-weight: 600; color: var(--text-secondary); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
 .iv-question .q-answer { font-size: 13px; color: var(--text); line-height: 1.6; padding: 8px 10px; background: white; border-radius: 6px; margin-bottom: 8px; border: 1px solid var(--border); white-space: pre-wrap; }
-.iv-question .q-suggestion { font-size: 13px; color: #92400E; line-height: 1.6; padding: 8px 10px; background: #FEF3C7; border-radius: 6px; white-space: pre-wrap; }
+.iv-question .q-suggestion { font-size: 13px; color: #9A3412; line-height: 1.6; padding: 8px 10px; background: #FFEDD5; border-radius: 6px; white-space: pre-wrap; }
 .iv-summary { font-size: 13px; color: var(--text); padding: 10px 12px; background: #F0FDF4; border-radius: 8px; margin-top: 10px; white-space: pre-wrap; line-height: 1.6; }
 .iv-summary-label { font-size: 11px; font-weight: 600; color: #065F46; margin-bottom: 4px; }
 .iv-stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; margin-bottom: 20px; }
@@ -1110,25 +1110,25 @@ function renderAiReport(a) {
   if (!a) return '';
   if (a.raw) return `<div class="iv-summary" style="background:#F8FAFC;"><div class="iv-summary-label">AI 原始输出</div>${a.raw}</div>`;
   const o = a.overall || {};
-  // Fix actionList: strip leading "1. " "2. " etc. from AI output
-  const actionList = (a.actionList||[]).map((x,i) => {
+  const actionList = (a.actionList||[]).slice(0,5).map((x,i) => {
     const clean = x.replace(/^\d+[\.\)、]\s*/, '');
-    return `<div style="font-size:12px;margin-bottom:4px;">${i+1}. ${clean}</div>`;
+    return `<div style="font-size:12px;margin-bottom:4px;line-height:1.5;">${i+1}. ${clean}</div>`;
   }).join('');
-  return `<div style="margin-top:12px;background:#F8FAFC;border-radius:10px;overflow:hidden;">
-    <div onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none';this.querySelector('.rpt-arrow').style.transform=this.nextElementSibling.style.display==='none'?'':'rotate(90deg)';" style="padding:12px 14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none;">
-      <span style="font-size:13px;font-weight:700;color:var(--primary-dark);">AI 复盘报告</span>
-      <span class="rpt-arrow" style="font-size:14px;color:var(--text-secondary);transition:transform 0.2s;">▶</span>
-    </div>
-    <div style="padding:0 14px 14px;display:none;">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
-        <div style="background:white;border-radius:8px;padding:10px;"><div style="font-size:11px;color:var(--text-secondary);">通过率预测</div><div style="font-size:20px;font-weight:700;color:var(--primary);">${o.passRate || '-'}</div></div>
-        <div style="background:white;border-radius:8px;padding:10px;"><div style="font-size:11px;color:var(--text-secondary);">面试官关注</div><div style="font-size:12px;margin-top:2px;">${o.interviewerFocus || '-'}</div></div>
+  const pr = o.passRate ? String(o.passRate).replace(/%/g, '') : '';
+  return `<div style="margin-top:12px;background:#F8FAFC;border-radius:10px;padding:14px;">
+    <div style="font-size:13px;font-weight:700;margin-bottom:10px;color:var(--primary-dark);">AI 复盘报告</div>
+    <div style="display:grid;grid-template-columns:auto 1fr;gap:10px;margin-bottom:12px;">
+      <div style="background:white;border-radius:8px;padding:10px 16px;text-align:center;display:flex;flex-direction:column;justify-content:center;">
+        <div style="font-size:11px;color:var(--text-secondary);">通过率预测</div>
+        <div style="font-size:22px;font-weight:700;color:var(--primary);">${pr ? pr + '%' : '-'}</div>
       </div>
-      ${o.strength ? `<div style="font-size:12px;margin-bottom:6px;line-height:1.6;"><strong style="color:var(--success);">优势：</strong>${o.strength}</div>` : ''}
-      ${o.risk ? `<div style="font-size:12px;margin-bottom:10px;line-height:1.6;"><strong style="color:var(--danger);">风险：</strong>${o.risk}</div>` : ''}
-      ${actionList ? `<div style="background:white;border-radius:8px;padding:10px;"><div style="font-size:12px;font-weight:600;margin-bottom:6px;">行动清单</div>${actionList}</div>` : ''}
+      <div style="background:white;border-radius:8px;padding:10px 12px;line-height:1.7;font-size:12px;">
+        ${o.interviewerFocus ? `<div style="margin-bottom:4px;"><strong>面试官关注：</strong>${o.interviewerFocus}</div>` : ''}
+        ${o.strength ? `<div style="margin-bottom:4px;"><strong style="color:var(--success);">优势：</strong>${o.strength}</div>` : ''}
+        ${o.risk ? `<div><strong style="color:var(--danger);">风险：</strong>${o.risk}</div>` : ''}
+      </div>
     </div>
+    ${actionList ? `<div style="background:white;border-radius:8px;padding:10px;"><div style="font-size:12px;font-weight:600;margin-bottom:6px;">行动清单</div>${actionList}</div>` : ''}
   </div>`;
 }
 

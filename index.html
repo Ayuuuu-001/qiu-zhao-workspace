@@ -254,6 +254,8 @@ td a:hover { text-decoration: underline; }
 .q-form-group textarea { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 12px; font-family: inherit; resize: vertical; min-height: 50px; }
 .q-form-group textarea:focus { outline: none; border-color: var(--primary); }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 </head>
 <body>
 
@@ -411,9 +413,13 @@ td a:hover { text-decoration: underline; }
       <div style="margin-top:16px;background:linear-gradient(135deg,#EFF6FF,#F5F3FF);border:1px solid #DBEAFE;border-radius:10px;padding:14px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
           <label style="font-size:13px;font-weight:600;color:var(--primary-dark);">AI 逐字稿分析</label>
-          <button class="btn btn-sm btn-blue" id="ivAiBtn" onclick="runAiAnalysis()">AI 智能分析</button>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <button class="btn btn-sm" style="background:#F1F5F9;color:var(--primary);border:1px solid var(--border);" onclick="document.getElementById('iv_transcriptFile').click()">📄 上传文件</button>
+            <input type="file" id="iv_transcriptFile" accept=".pdf,.docx" style="display:none" onchange="handleTranscriptUpload(this)">
+            <button class="btn btn-sm btn-blue" id="ivAiBtn" onclick="runAiAnalysis()">AI 智能分析</button>
+          </div>
         </div>
-        <textarea id="iv_transcript" placeholder="粘贴本场面试的完整逐字稿（面试官和候选人的对话），AI 会自动提取问题、概括回答、给出优化建议并填充下方表单..." style="width:100%;min-height:90px;padding:10px;border:1px solid var(--border);border-radius:8px;font-size:12px;font-family:inherit;resize:vertical;"></textarea>
+        <textarea id="iv_transcript" placeholder="上传 PDF/Word 文件，或直接粘贴面试逐字稿。AI 会自动提取问题、概括回答、给出优化建议并填充下方表单..." style="width:100%;min-height:90px;padding:10px;border:1px solid var(--border);border-radius:8px;font-size:12px;font-family:inherit;resize:vertical;"></textarea>
         <div id="ivAiStatus" style="font-size:12px;color:var(--text-secondary);margin-top:6px;"></div>
       </div>
       <div style="margin-top:16px;">
@@ -911,6 +917,48 @@ function addQuestionForm(q, a, s) {
     <textarea placeholder="优化建议 / 标准答案..." data-field="suggestion">${s || ''}</textarea>
   `;
   document.getElementById('ivQuestions').appendChild(div);
+}
+
+async function handleTranscriptUpload(input) {
+  const file = input.files && input.files[0];
+  if (!file) return;
+  const status = document.getElementById('ivAiStatus');
+  const textarea = document.getElementById('iv_transcript');
+  const ext = file.name.split('.').pop().toLowerCase();
+  status.textContent = '正在解析文件：' + file.name + '...';
+  try {
+    let text = '';
+    if (ext === 'pdf') {
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      const pages = [];
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        pages.push(content.items.map(it => it.str).join(''));
+      }
+      text = pages.join('\n\n');
+    } else if (ext === 'docx') {
+      const arrayBuffer = await file.arrayBuffer();
+      const result = await mammoth.extractRawText({ arrayBuffer });
+      text = result.value;
+    } else {
+      status.textContent = '不支持的文件格式，请上传 PDF 或 DOCX 文件。';
+      input.value = '';
+      return;
+    }
+    if (!text.trim()) {
+      status.textContent = '文件中未提取到文本内容，请检查文件。';
+      input.value = '';
+      return;
+    }
+    textarea.value = text.trim();
+    status.textContent = '已导入 ' + file.name + '（' + text.trim().length + ' 字），可继续编辑或点击「AI 智能分析」。';
+  } catch (e) {
+    console.error(e);
+    status.textContent = '文件解析失败：' + (e.message || '未知错误');
+  }
+  input.value = '';
 }
 
 async function runAiAnalysis() {

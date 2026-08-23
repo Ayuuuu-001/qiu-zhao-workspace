@@ -295,7 +295,7 @@ td a:hover { text-decoration: underline; }
         <option value="">全部状态</option>
       </select>
       <select class="filter-select" id="filterSource" onchange="renderLibrary()">
-        <option value="">全部来源</option>
+        <option value="">全部部门</option>
       </select>
       <select class="filter-select" id="filterCity" onchange="renderLibrary()">
         <option value="">全部城市</option>
@@ -306,7 +306,7 @@ td a:hover { text-decoration: underline; }
       <div class="table-wrap">
         <table>
           <thead><tr>
-            <th>公司名称</th><th>岗位名称</th><th>工作城市</th><th>投递进度</th><th>官网链接</th><th>投递日期</th><th>信息来源</th><th>操作</th>
+            <th>公司名称</th><th>岗位名称</th><th>工作城市</th><th>投递进度</th><th>官网链接</th><th>投递日期</th><th>面试部门</th><th>操作</th>
           </tr></thead>
           <tbody id="libraryBody"></tbody>
         </table>
@@ -335,7 +335,7 @@ td a:hover { text-decoration: underline; }
         <div class="bar-chart" id="cityBars"></div>
       </div>
       <div class="chart-box">
-        <h4>信息来源分布</h4>
+        <h4>面试部门分布</h4>
         <div class="bar-chart" id="sourceBars"></div>
       </div>
       <div class="chart-box">
@@ -449,9 +449,8 @@ td a:hover { text-decoration: underline; }
         <div class="form-group"><label>岗位名称 *</label><input id="f_position" placeholder="如：产品经理"></div>
         <div class="form-group"><label>工作城市</label><input id="f_city" placeholder="如：北京"></div>
         <div class="form-group"><label>岗位官网链接</label><input id="f_link" placeholder="https://..."></div>
-        <div class="form-group"><label>发布时间</label><input type="date" id="f_publishDate"></div>
         <div class="form-group"><label>投递日期</label><input type="date" id="f_applyDate"></div>
-        <div class="form-group"><label>信息来源</label><input id="f_source" placeholder="如：牛客、官网、Boss直聘"></div>
+        <div class="form-group"><label>面试部门</label><input id="f_source" placeholder="如：产品部、技术部、用户增长部"></div>
         <div class="form-group"><label>投递状态</label>
           <select id="f_status">
             <option value="未投递">未投递</option>
@@ -468,7 +467,6 @@ td a:hover { text-decoration: underline; }
             <option value="offer">offer</option>
           </select>
         </div>
-        <div class="form-group full"><label>面试备注 / 复盘</label><textarea id="f_note" placeholder="面试感受、考察重点、改进方向..."></textarea></div>
       </div>
     </div>
     <div class="modal-footer">
@@ -536,9 +534,8 @@ function openAddModal() {
   editingId = null;
   document.getElementById('modalTitle').textContent = '新增岗位';
   document.getElementById('deleteBtn').style.display = 'none';
-  ['f_company','f_position','f_city','f_link','f_publishDate','f_applyDate','f_source','f_note'].forEach(id => document.getElementById(id).value = '');
+  ['f_company','f_position','f_city','f_link','f_applyDate','f_source'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('f_status').value = '未投递';
-  document.getElementById('f_publishDate').value = new Date().toISOString().slice(0,10);
   document.getElementById('jobModal').classList.add('show');
 }
 function openEditModal(id) {
@@ -551,11 +548,9 @@ function openEditModal(id) {
   document.getElementById('f_position').value = job.position || '';
   document.getElementById('f_city').value = job.city || '';
   document.getElementById('f_link').value = job.link || '';
-  document.getElementById('f_publishDate').value = job.publishDate || '';
   document.getElementById('f_applyDate').value = job.applyDate || '';
   document.getElementById('f_source').value = job.source || '';
   document.getElementById('f_status').value = job.status || '未投递';
-  document.getElementById('f_note').value = job.note || '';
   document.getElementById('jobModal').classList.add('show');
 }
 function closeModal() { document.getElementById('jobModal').classList.remove('show'); editingId = null; }
@@ -569,11 +564,9 @@ function saveJob() {
     company, position,
     city: document.getElementById('f_city').value.trim(),
     link: document.getElementById('f_link').value.trim(),
-    publishDate: document.getElementById('f_publishDate').value,
     applyDate: document.getElementById('f_applyDate').value,
     source: document.getElementById('f_source').value.trim(),
     status: document.getElementById('f_status').value,
-    note: document.getElementById('f_note').value.trim(),
   };
   if (editingId) {
     const idx = jobs.findIndex(j => j.id === editingId);
@@ -621,7 +614,7 @@ function isToday(dateStr) {
 }
 
 function renderToday() {
-  const today = jobs.filter(j => isToday(j.publishDate));
+  const today = jobs.filter(j => isToday(j.createdAt));
   const grid = document.getElementById('todayGrid');
   if (today.length === 0) {
     grid.innerHTML = '<div class="empty" style="grid-column:1/-1;"><div class="icon">📋</div><p>今日暂无新增岗位，点击右上角手动添加</p></div>';
@@ -637,7 +630,6 @@ function renderToday() {
       <div class="tc-meta">
         ${j.city ? `<span>📍 ${j.city}</span>` : ''}
         ${j.source ? `<span>📌 ${j.source}</span>` : ''}
-        ${j.publishDate ? `<span>📅 ${j.publishDate}</span>` : ''}
       </div>
       ${j.link ? `<div class="tc-actions"><a href="${j.link}" target="_blank" class="btn btn-sm btn-blue" onclick="event.stopPropagation()">查看官网 →</a></div>` : ''}
     </div>

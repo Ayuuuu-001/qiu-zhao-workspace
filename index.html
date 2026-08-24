@@ -661,6 +661,10 @@ function renderLibrary() {
     return true;
   });
 
+  // Sort by status priority: active/progressing first, then failed/rejected at bottom
+  const statusOrder = { 'offer':0, '三面中':1, '二面中':2, '一面中':3, '已测评':4, '待测评':5, '已投递':6, '未投递':7, '三面挂':8, '二面挂':9, '一面挂':10, '简历挂':11 };
+  filtered.sort((a, b) => (statusOrder[a.status] ?? 99) - (statusOrder[b.status] ?? 99));
+
   document.getElementById('libCount').textContent = `共 ${filtered.length} 条`;
   document.getElementById('libraryBody').innerHTML = filtered.length === 0
     ? '<tr><td colspan="8" style="text-align:center;color:var(--text-secondary);padding:30px;">暂无岗位数据，点击右上角「+ 新增岗位」开始添加</td></tr>'

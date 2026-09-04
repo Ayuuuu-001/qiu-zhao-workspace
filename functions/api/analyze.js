@@ -48,12 +48,13 @@ const SYSTEM_PROMPT = `你是一名资深互联网产品经理面试教练。请
 
 分析要求：
 1. 面试官问题按逐字稿出现顺序排列，问题类型归类准确
-2. 回答概括简洁不复述，评价指出具体亮点和问题
-3. betterAnswer 给表达框架和关键内容，不只说原则
-4. 评分基于逐字稿证据，不要凭印象打分
-5. improvements 按优先级排序，template 给出可直接套用的话术
-6. interviewerView 必须基于逐字稿推测
-7. 如果逐字稿信息不足以判断某项，明确标注"信息不足"`;
+2. questions 必须逐条覆盖面试官在逐字稿中提出的每一个问题，包括追问、深挖和反问环节，不得合并、不得省略；为控制篇幅，每条的 answerSummary、evaluation、betterAnswer 各不超过60字
+3. 回答概括简洁不复述，评价指出具体亮点和问题
+4. betterAnswer 给表达框架和关键内容，不只说原则
+5. 评分基于逐字稿证据，不要凭印象打分
+6. improvements 按优先级排序，template 给出可直接套用的话术
+7. interviewerView 必须基于逐字稿推测
+8. 如果逐字稿信息不足以判断某项，明确标注"信息不足"`;
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',

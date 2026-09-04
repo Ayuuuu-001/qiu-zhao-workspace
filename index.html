@@ -1140,7 +1140,7 @@ function renderFreqQuestions() {
       freq[key].companies.add(iv.company);
     });
   });
-  const sorted = Object.values(freq).sort((a, b) => b.count - a.count).slice(0, 10);
+  const sorted = Object.values(freq).sort((a, b) => b.count - a.count);
   if (sorted.length === 0) {
     el.innerHTML = '<div style="text-align:center;color:var(--text-secondary);font-size:13px;padding:10px 0;">暂无面试数据，添加面试后自动统计高频问题</div>';
     return;
@@ -1154,7 +1154,7 @@ function renderAiReport(a) {
   if (!a) return '';
   if (a.raw) return `<div class="iv-summary"><div class="iv-summary-label">AI 原始输出</div>${a.raw}</div>`;
   const o = a.overall || {};
-  const actionList = (a.actionList||[]).slice(0,5).map((x,i) => {
+  const actionList = (a.actionList||[]).map((x,i) => {
     const clean = x.replace(/^\d+[\.\)、]\s*/, '');
     return `<div style="font-size:12px;margin-bottom:4px;line-height:1.6;">${i+1}. ${clean}</div>`;
   }).join('');

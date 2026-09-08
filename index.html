@@ -1037,6 +1037,24 @@ function saveInterview() {
   closeInterviewModal();
   renderAll();
   showToast(ivEditingId ? '面试已更新' : '面试已添加');
+
+  // Prompt to create next-round record
+  const nextRoundMap = { '一面': '二面', '二面': '三面' };
+  const nextRound = nextRoundMap[data.round];
+  if (nextRound && data.result === 'pass') {
+    const hasNext = interviews.some(i => i.jobId === data.jobId && i.round === nextRound);
+    if (!hasNext && confirm(`${company} ${data.round}已通过！是否立即添加${nextRound}面试记录？`)) {
+      interviews.push({
+        id: genId(), jobId: data.jobId, company, position,
+        round: nextRound, result: 'pending',
+        datetime: '', summary: '', questions: [], analysis: null, transcript: '',
+        createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
+      });
+      saveInterviews();
+      renderAll();
+      showToast(`已添加${company} ${nextRound}记录，请补充面试时间`);
+    }
+  }
 }
 
 function deleteInterview() {
@@ -1130,23 +1148,59 @@ function renderInterviewStats() {
 function renderFreqQuestions() {
   const el = document.getElementById('ivFreqQuestions');
   if (!el) return;
-  const freq = {};
+
+  // Collect all question texts with their company
+  const all = [];
   interviews.forEach(iv => {
     (iv.questions || []).forEach(q => {
       const key = q.question.trim();
       if (!key) return;
-      if (!freq[key]) freq[key] = { text: key, count: 0, companies: new Set() };
-      freq[key].count++;
-      freq[key].companies.add(iv.company);
+      all.push({ text: key, company: iv.company });
     });
   });
-  const sorted = Object.values(freq).sort((a, b) => b.count - a.count);
-  if (sorted.length === 0) {
+
+  if (all.length === 0) {
     el.innerHTML = '<div style="text-align:center;color:var(--text-secondary);font-size:13px;padding:10px 0;">暂无面试数据，添加面试后自动统计高频问题</div>';
     return;
   }
+
+  // Bigram Jaccard similarity
+  const bigrams = s => {
+    const set = new Set();
+    const clean = s.replace(/[？?！!。，、\s]/g, '');
+    for (let i = 0; i < clean.length - 1; i++) set.add(clean.slice(i, i + 2));
+    return set;
+  };
+  const jaccard = (a, b) => {
+    const sa = bigrams(a), sb = bigrams(b);
+    if (sa.size === 0 && sb.size === 0) return 1;
+    if (sa.size === 0 || sb.size === 0) return 0;
+    let inter = 0;
+    for (const x of sa) if (sb.has(x)) inter++;
+    return inter / (sa.size + sb.size - inter);
+  };
+
+  // Greedy clustering
+  const clusters = [];
+  for (const q of all) {
+    let merged = false;
+    for (const c of clusters) {
+      if (jaccard(c.rep, q.text) >= 0.5) {
+        c.count++;
+        c.companies.add(q.company);
+        if (q.text.length < c.rep.length) c.rep = q.text;
+        merged = true;
+        break;
+      }
+    }
+    if (!merged) {
+      clusters.push({ rep: q.text, count: 1, companies: new Set([q.company]) });
+    }
+  }
+
+  const sorted = clusters.sort((a, b) => b.count - a.count);
   el.innerHTML = '<ul class="iv-freq-list">' + sorted.map(q =>
-    `<li class="iv-freq-item"><span class="q-text">${q.text}</span><span class="q-count">${q.count} 次 · ${[...q.companies].join('/')}</span></li>`
+    `<li class="iv-freq-item"><span class="q-text">${q.rep}</span><span class="q-count">${q.count} 次 · ${[...q.companies].join('/')}</span></li>`
   ).join('') + '</ul>';
 }
 

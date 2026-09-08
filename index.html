@@ -1164,20 +1164,15 @@ function renderFreqQuestions() {
     return;
   }
 
-  // Bigram Jaccard similarity
-  const bigrams = s => {
-    const set = new Set();
-    const clean = s.replace(/[？?！!。，、\s]/g, '');
-    for (let i = 0; i < clean.length - 1; i++) set.add(clean.slice(i, i + 2));
-    return set;
-  };
-  const jaccard = (a, b) => {
-    const sa = bigrams(a), sb = bigrams(b);
-    if (sa.size === 0 && sb.size === 0) return 1;
+  // Overlap coefficient on character sets — better for Chinese paraphrase detection
+  const clean = s => s.replace(/[？?！!。，、\s\?]/g, '');
+  const charSet = s => new Set(clean(s).split(''));
+  const overlap = (a, b) => {
+    const sa = charSet(a), sb = charSet(b);
     if (sa.size === 0 || sb.size === 0) return 0;
     let inter = 0;
     for (const x of sa) if (sb.has(x)) inter++;
-    return inter / (sa.size + sb.size - inter);
+    return inter / Math.min(sa.size, sb.size);
   };
 
   // Greedy clustering
@@ -1185,7 +1180,7 @@ function renderFreqQuestions() {
   for (const q of all) {
     let merged = false;
     for (const c of clusters) {
-      if (jaccard(c.rep, q.text) >= 0.5) {
+      if (overlap(c.rep, q.text) >= 0.5) {
         c.count++;
         c.companies.add(q.company);
         if (q.text.length < c.rep.length) c.rep = q.text;

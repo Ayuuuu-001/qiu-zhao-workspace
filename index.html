@@ -1164,9 +1164,14 @@ function renderFreqQuestions() {
     return;
   }
 
-  // Overlap coefficient on character sets — better for Chinese paraphrase detection
+  // Overlap coefficient on content characters — stopwords removed for Chinese paraphrase detection
+  const STOPWORDS = new Set('的了在有和也就都不这那个吗呢吧啊呀哦嘛啦哇什么怎是');
   const clean = s => s.replace(/[？?！!。，、\s\?]/g, '');
-  const charSet = s => new Set(clean(s).split(''));
+  const charSet = s => {
+    const set = new Set();
+    for (const c of clean(s)) { if (!STOPWORDS.has(c)) set.add(c); }
+    return set;
+  };
   const overlap = (a, b) => {
     const sa = charSet(a), sb = charSet(b);
     if (sa.size === 0 || sb.size === 0) return 0;

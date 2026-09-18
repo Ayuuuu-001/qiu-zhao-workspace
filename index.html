@@ -234,6 +234,9 @@ td a:hover { text-decoration: underline; }
 .iv-freq-item:last-child { border-bottom: none; }
 .iv-freq-item .q-text { flex: 1; margin-right: 10px; }
 .iv-freq-item .q-count { font-size: 11px; font-weight: 700; color: var(--primary); background: var(--primary-light); border-radius: 10px; padding: 1px 8px; flex-shrink: 0; }
+.freq-toggle-arrow { font-size: 11px; color: var(--text-secondary); transition: transform 0.25s ease; }
+.freq-toggle-arrow.collapsed { transform: rotate(180deg); }
+#ivFreqQuestions.collapsed { display: none; }
 .iv-calendar-event { padding: 10px 12px; border-left: 3px solid var(--primary); background: #F8FAFC; border-radius: 0 8px 8px 0; margin-bottom: 10px; }
 .iv-calendar-event .ev-date { font-size: 13px; font-weight: 700; color: var(--primary); }
 .iv-calendar-event .ev-company { font-size: 13px; font-weight: 600; margin-top: 2px; }
@@ -367,7 +370,10 @@ td a:hover { text-decoration: underline; }
     <div id="ivUpcoming"></div>
     <div class="iv-stats" id="ivStats"></div>
     <div class="card" style="margin-bottom:20px">
-      <div class="card-header"><h3>高频面试问题</h3></div>
+      <div class="card-header" style="cursor:pointer;user-select:none" onclick="toggleFreqPanel()">
+        <h3>高频面试问题</h3>
+        <span class="freq-toggle-arrow" id="freqToggleArrow">▲</span>
+      </div>
       <div class="card-body" id="ivFreqQuestions"></div>
     </div>
     <div id="ivJobList"></div>
@@ -1198,10 +1204,22 @@ function renderFreqQuestions() {
     }
   }
 
-  const sorted = clusters.sort((a, b) => b.count - a.count);
+  const sorted = clusters.filter(c => c.count >= 2).sort((a, b) => b.count - a.count);
+  if (sorted.length === 0) {
+    el.innerHTML = '<div style="text-align:center;color:var(--text-secondary);font-size:13px;padding:10px 0;">暂无高频问题（所有问题仅出现 1 次）</div>';
+    return;
+  }
   el.innerHTML = '<ul class="iv-freq-list">' + sorted.map(q =>
     `<li class="iv-freq-item"><span class="q-text">${q.rep}</span><span class="q-count">${q.count} 次 · ${[...q.companies].join('/')}</span></li>`
   ).join('') + '</ul>';
+}
+
+function toggleFreqPanel() {
+  const body = document.getElementById('ivFreqQuestions');
+  const arrow = document.getElementById('freqToggleArrow');
+  if (!body || !arrow) return;
+  body.classList.toggle('collapsed');
+  arrow.classList.toggle('collapsed');
 }
 
 function renderAiReport(a) {
